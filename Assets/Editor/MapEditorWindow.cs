@@ -79,8 +79,12 @@ namespace MapEditor
                 GUILayout.Label("Map Size", GUILayout.Width(150));
                 GUILayout.Label("X : ");
                 mapSize.x = EditorGUILayout.FloatField(mapSize.x);
+                MapSizeCheck(ref mapSize.x);
+
                 GUILayout.Label("Y : ");
                 mapSize.y = EditorGUILayout.FloatField(mapSize.y);
+                MapSizeCheck(ref mapSize.y);
+
             }
             EditorGUILayout.Space();
 
@@ -116,6 +120,23 @@ namespace MapEditor
         {
             GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(2));
             EditorGUILayout.Space();
+        }
+
+        /// <summary>
+        /// マップサイズが指定可能な状態かを確認する
+        /// <para>絶対値, 0->1, 5捨6入</para>
+        /// </summary>
+        /// <param name="value"></param>
+        private void MapSizeCheck(ref float value)
+        {
+            //絶対値に
+            value = Mathf.Abs(value);
+
+            //0以下なら１に
+            if (value <= 0) value = 1;
+
+            //四捨五入
+            value = Mathf.RoundToInt(value);
         }
     }
 }

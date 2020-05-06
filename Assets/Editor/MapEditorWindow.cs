@@ -57,6 +57,43 @@ namespace MapEditor
             DrawLine();
             #endregion
 
+            #region ### Input ###
+            //ヘッダー
+            using (new GUILayout.HorizontalScope())
+            {
+                FontSizeChangeLabel("Input", HEADER_FONT_SIZE);
+            }
+            EditorGUILayout.Space();
+
+            //オブジェクトファイルの読み込み
+            using (new GUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Stage Resource File", GUILayout.Width(150));
+                dataDirectory = EditorGUILayout.ObjectField(dataDirectory, typeof(Object), true);
+            }
+            EditorGUILayout.Space();
+
+            //マップサイズの指定
+            using (new GUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Map Size", GUILayout.Width(150));
+                GUILayout.Label("X : ");
+                mapSize.x = EditorGUILayout.FloatField(mapSize.x);
+                GUILayout.Label("Y : ");
+                mapSize.y = EditorGUILayout.FloatField(mapSize.y);
+            }
+            EditorGUILayout.Space();
+
+            DrawLine();
+            #endregion
+
+            #region ### Input Objects Check Space ###
+
+            #endregion
+
+            #region ### Output ###
+
+            #endregion
 
         }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEditor;
 
@@ -17,6 +18,9 @@ namespace MapEditor
         Object outputEmptyObject; //! 作成したマップデータを保管するオブジェクト
         Vector2 mapSize = new Vector2(10, 10); //! マップサイズを保管
         Vector3 partsSize = new Vector3(1, 1, 1); //!使用するオブジェクトのサイズを予め記述し、サイズの成型を行う
+
+        SearchOption searchOption;  //! ファイルの検索範囲
+        List<GameObject> partsObjects; //! 素材となるオブジェクト
 
         /*Developer Settings*/
         const string WINDOW_NAME = "Map Editor"; //! タブに表示される名前
@@ -68,10 +72,17 @@ namespace MapEditor
             //オブジェクトファイルの読み込み
             using (new GUILayout.HorizontalScope())
             {
-                GUILayout.Label("Stage Resource File", GUILayout.Width(150));
+                GUILayout.Label("Stage Resource File*", GUILayout.Width(150));
                 dataDirectory = EditorGUILayout.ObjectField(dataDirectory, typeof(Object), true);
             }
             EditorGUILayout.Space();
+
+            //読み込むファイルの範囲を選択
+            using (new GUILayout.HorizontalScope())
+            {
+                GUILayout.Label("File Load Option", GUILayout.Width(150));
+                searchOption = (SearchOption)EditorGUILayout.EnumPopup(searchOption);
+            }
 
             //マップサイズの指定
             using (new GUILayout.HorizontalScope())
@@ -91,12 +102,31 @@ namespace MapEditor
             DrawLine();
             #endregion
 
-            #region ### Input Objects Check Space ###
+            #region ### Output ###
 
             #endregion
 
-            #region ### Output ###
+            #region ### Input Objects Check Space ###
+            //ここから、スクロールビュー
+            EditorGUILayout.BeginScrollView(new Vector2(0, 0), GUI.skin.box);
+            
+            //ファイルがないなら、何も表示しない
+            if (dataDirectory)
+            {
+                // 指定されたオブジェクトのパスを取得
+                string path = AssetDatabase.GetAssetOrScenePath(dataDirectory);
 
+                //オブジェクトデータのPathのみ取得
+                string[] objectChild = Directory.GetFiles(path, "*.prefab", searchOption);
+
+                for(int i = 0; i < objectChild.Length; i++)
+                {
+                    GUILayout.Label(objectChild[i], GUILayout.Width(300));
+                }
+
+            }
+            EditorGUILayout.EndScrollView();
+            DrawLine();
             #endregion
 
         }

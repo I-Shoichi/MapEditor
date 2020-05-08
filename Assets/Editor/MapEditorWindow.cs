@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEditor;
+using System.Text.RegularExpressions;
 
 namespace MapEditor
 {
@@ -116,14 +117,15 @@ namespace MapEditor
                 // 指定されたオブジェクトのパスを取得
                 string path = AssetDatabase.GetAssetOrScenePath(dataDirectory);
 
-                //オブジェクトデータのPathのみ取得
+                //Pathのディレクトリに含まれている*.prefab形式のデータを取得する
                 string[] objectChild = Directory.GetFiles(path, "*.prefab", searchOption);
 
                 for(int i = 0; i < objectChild.Length; i++)
                 {
-                    GUILayout.Label(objectChild[i], GUILayout.Width(300));
+                    //正規表現を使用して、オブジェクト形式のみ表示
+                    Match match = Regex.Match(objectChild[i], "[a-zA-Z0-9]*.prefab");
+                    GUILayout.Label(match.Value);
                 }
-
             }
             EditorGUILayout.EndScrollView();
             DrawLine();

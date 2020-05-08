@@ -185,7 +185,7 @@ namespace MapEditor
                 for (int i = 0; i < objectChild.Length; i++)
                 {
                     //正規表現を使用して、オブジェクト形式のみ表示
-                    Match match = Regex.Match(objectChild[i], "[a-zA-Z0-9]*.prefab");
+                    Match match = Regex.Match(objectChild[i], "[ a-zA-Z0-9]*.prefab");
 
                     //横に並べる
                     using (new GUILayout.HorizontalScope())

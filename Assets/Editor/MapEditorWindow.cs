@@ -254,6 +254,7 @@ namespace MapEditor
         /*ユーザー設定*/
         Color gridColor = Color.white; //! 線の色
         Color backGroundColor = new Vector4(0.0f, 0.6f, 1.0f, 1.0f); //! 背景の色
+        bool pallet = true; //! パレットの表示
         
         /*Init Input Datas*/
         GameObject saveObject;
@@ -290,6 +291,14 @@ namespace MapEditor
                 {
 
                 }
+                if(GUILayout.Button("Option")) //! 設定
+                {
+
+                }
+                if (GUILayout.Button("Pallet")) //! パレットの表示
+                {
+                    pallet = !pallet;
+                }
                 if (GUILayout.Button("Origin")) //! 原点
                 {
 
@@ -323,6 +332,12 @@ namespace MapEditor
                 DrawGrid(mapSize);
             }
             GUI.color = Color.white;
+            #endregion
+
+            #region ### Pallet ###
+            using (new GUILayout.HorizontalScope())
+            {
+            }
             #endregion
         }
 

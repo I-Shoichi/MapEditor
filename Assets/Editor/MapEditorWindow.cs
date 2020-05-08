@@ -15,6 +15,7 @@ namespace MapEditor
     {
         #region ### Globals ###
         MapSubEditorWindow subWindow;
+        Vector2 scrollPosition = new Vector2(0, 0); //! どこまでスクロールしたかを取得するポジション
 
         /*ユーザーの初期設定*/
         Object dataDirectory; //! 使用するオブジェクトが入っているディレクトリ
@@ -150,7 +151,7 @@ namespace MapEditor
                 //Sub Windowがなければ生成する
                 if (subWindow == null)
                 {
-                    subWindow = new MapSubEditorWindow(outputEmptyObject, partsObjects, mapSize);
+                    subWindow = new MapSubEditorWindow(ref outputEmptyObject, partsObjects, mapSize);
                 }
 
                 //必要なデータがなければ、Windowを起動しない
@@ -170,7 +171,7 @@ namespace MapEditor
 
             #region ### Input Objects Check Space ###
             //ここから、スクロールビュー
-            EditorGUILayout.BeginScrollView(new Vector2(0, 0), GUI.skin.box);
+            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
             //ファイルがないなら、何も表示しない
             if (dataDirectory)
@@ -242,26 +243,109 @@ namespace MapEditor
         }
     }
 
+    /// <summary>
+    /// マップのサブウィンドウを表示する
+    /// @author Shoichi Ikeda
+    /// </summary>
     public class MapSubEditorWindow : EditorWindow
     {
+        Vector2 scrollPosition = new Vector2(0, 0);
+
+        /*ユーザー設定*/
+        Color gridColor = Color.white; //! 線の色
+        Color backGroundColor = new Vector4(0.0f, 0.6f, 1.0f, 1.0f); //! 背景の色
+        
         /*Init Input Datas*/
-        GameObject emptyObject;
+        GameObject saveObject;
         List<GameObject> partsObject;
         Vector2 mapSize;
-
+        
         /*Developer Settings*/
         const string WINDOW_NAME = "Editor"; //! タブに表示される名前
+        float gridSize = 50; //! grid線のサイズ
 
-        public MapSubEditorWindow(GameObject empty, List<GameObject> parts, Vector2 map)
+        /// <summary>
+        /// 初期化
+        /// </summary>
+        /// <param name="empty"></param>
+        /// <param name="parts"></param>
+        /// <param name="map"></param>
+        public MapSubEditorWindow(ref GameObject empty, List<GameObject> parts, Vector2 map)
         {
-            emptyObject = empty;
+            saveObject = empty;
             partsObject = parts;
             mapSize = map;
         }
 
-        public void Create()
+        public void OnGUI()
         {
-            GetWindow<MapEditorWindow>(WINDOW_NAME);
+            #region ### Tabs ###
+            using (new GUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("Save")) //! 保存
+                {
+
+                }
+                if (GUILayout.Button("Clear")) //! クリア
+                {
+
+                }
+                if (GUILayout.Button("Origin")) //! 原点
+                {
+
+                }
+                if (GUILayout.Button("Paint")) //! ペイント
+                {
+
+                }
+                if (GUILayout.Button("Eraser")) //! 消しゴム
+                {
+
+                }
+                if (GUILayout.Button("bucket")) //! バケツ
+                {
+
+                }
+                if (GUILayout.Button("Grouping")) //! グループ化
+                {
+
+                }
+            }
+            GUILayout.Space(1);
+            #endregion
+
+            #region ### Grid ###
+            //色の変更
+            GUI.color = backGroundColor;
+
+            using (new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
+            {
+                DrawGrid(mapSize);
+            }
+            GUI.color = Color.white;
+            #endregion
+        }
+
+        /// <summary>
+        /// グリッド線を描画
+        /// </summary>
+        /// <param name="grid"></param>
+        private void DrawGrid(Vector2 grid)
+        {
+            //色を黒にする
+            Handles.color = gridColor;
+
+            for (int yyy =0; yyy < grid.y; yyy++)
+            {
+                for(int xxx = 0; xxx < grid.x; xxx++)
+                {
+                    Handles.DrawLine(new Vector2(xxx, yyy) * gridSize, new Vector2(xxx + 1, yyy) * gridSize);
+                    Handles.DrawLine(new Vector2(xxx, yyy) * gridSize, new Vector2(xxx, yyy + 1) * gridSize);
+                }
+            }
+
+            Handles.DrawLine(new Vector2(grid.x, 0) * gridSize, new Vector2(grid.x, grid.y) * gridSize);
+            Handles.DrawLine(new Vector2(0, grid.y) * gridSize, new Vector2(grid.x, grid.y) * gridSize);
         }
     }
 }

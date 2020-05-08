@@ -14,12 +14,13 @@ namespace MapEditor
     public class MapEditorWindow : EditorWindow
     {
         #region ### Globals ###
+        MapSubEditorWindow subWindow;
+
         /*ユーザーの初期設定*/
         Object dataDirectory; //! 使用するオブジェクトが入っているディレクトリ
         GameObject outputEmptyObject; //! 作成したマップデータを保管するオブジェクト
         Vector2 mapSize = new Vector2(10, 10); //! マップサイズを保管
         Vector3 partsSize = new Vector3(1, 1, 1); //!使用するオブジェクトのサイズを予め記述し、サイズの成型を行う
-
         SearchOption searchOption;  //! ファイルの検索範囲
         List<GameObject> partsObjects; //! 素材となるオブジェクト
 
@@ -130,13 +131,41 @@ namespace MapEditor
             EditorGUILayout.Space();
 
             GUILayout.Label("※The input object can't have any children if it has them.");
-
             EditorGUILayout.Space();
+
             DrawLine();
             #endregion
 
             #region ### Start ###
+            //ヘッダー
+            using (new GUILayout.HorizontalScope())
+            {
+                FontSizeChangeLabel("Start", HEADER_FONT_SIZE);
+            }
+            EditorGUILayout.Space();
 
+            //エディタを起動するボタン
+            if (GUILayout.Button("Open Editor"))
+            {
+                //Sub Windowがなければ生成する
+                if (subWindow == null)
+                {
+                    subWindow = new MapSubEditorWindow(outputEmptyObject, partsObjects, mapSize);
+                }
+
+                //必要なデータがなければ、Windowを起動しない
+                if (dataDirectory == null || outputEmptyObject == null)
+                {
+                    Debug.Log("No \"StageResourceFile\" or \"Empty Object\" was entered.");
+                    return;
+                }
+
+                //Windowの表示
+                subWindow.Show();
+            }
+            EditorGUILayout.Space();
+
+            DrawLine();
             #endregion
 
             #region ### Input Objects Check Space ###
@@ -210,6 +239,29 @@ namespace MapEditor
 
             //四捨五入
             value = Mathf.RoundToInt(value);
+        }
+    }
+
+    public class MapSubEditorWindow : EditorWindow
+    {
+        /*Init Input Datas*/
+        GameObject emptyObject;
+        List<GameObject> partsObject;
+        Vector2 mapSize;
+
+        /*Developer Settings*/
+        const string WINDOW_NAME = "Editor"; //! タブに表示される名前
+
+        public MapSubEditorWindow(GameObject empty, List<GameObject> parts, Vector2 map)
+        {
+            emptyObject = empty;
+            partsObject = parts;
+            mapSize = map;
+        }
+
+        public void Create()
+        {
+            GetWindow<MapEditorWindow>(WINDOW_NAME);
         }
     }
 }

@@ -327,9 +327,15 @@ namespace MapEditor
             //色の変更
             GUI.color = backGroundColor;
 
-            using (new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
+            //横に並べる
+            using (new GUILayout.HorizontalScope())
             {
-                DrawGrid(mapSize);
+                using (var scrollView = new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
+                {
+                    scrollPosition = scrollView.scrollPosition;
+
+                    DrawGrid(mapSize);
+                }
             }
             GUI.color = Color.white;
             #endregion

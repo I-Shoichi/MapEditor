@@ -48,10 +48,10 @@ namespace MapEditor
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.FlexibleSpace();
-                
+
                 //タイトルを表記
                 FontSizeChangeLabel(WINDOW_NAME, TITLE_FONT_SIZE);
-                
+
                 //バージョン表記
                 GUILayout.Label(VERSION);
 
@@ -110,7 +110,7 @@ namespace MapEditor
             #region ### Input Objects Check Space ###
             //ここから、スクロールビュー
             EditorGUILayout.BeginScrollView(new Vector2(0, 0), GUI.skin.box);
-            
+
             //ファイルがないなら、何も表示しない
             if (dataDirectory)
             {
@@ -120,11 +120,20 @@ namespace MapEditor
                 //Pathのディレクトリに含まれている*.prefab形式のデータを取得する
                 string[] objectChild = Directory.GetFiles(path, "*.prefab", searchOption);
 
-                for(int i = 0; i < objectChild.Length; i++)
+                for (int i = 0; i < objectChild.Length; i++)
                 {
                     //正規表現を使用して、オブジェクト形式のみ表示
                     Match match = Regex.Match(objectChild[i], "[a-zA-Z0-9]*.prefab");
-                    GUILayout.Label(match.Value);
+
+                    //横に並べる
+                    using (new GUILayout.HorizontalScope())
+                    {
+                        GUILayout.Label(match.Value, GUILayout.Width(300));
+
+                        //オブジェクトを代入する
+                        partsObjects[i] = EditorGUILayout.ObjectField
+                            (AssetDatabase.LoadAssetAtPath<GameObject>(objectChild[i]), typeof(GameObject), true) as GameObject;
+                    }
                 }
             }
             EditorGUILayout.EndScrollView();

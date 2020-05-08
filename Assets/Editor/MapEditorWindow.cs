@@ -163,6 +163,8 @@ namespace MapEditor
 
                 //Windowの表示
                 subWindow.Show();
+                //ウィンドウを手前に表示
+                subWindow.Focus();
             }
             EditorGUILayout.Space();
 
@@ -258,7 +260,7 @@ namespace MapEditor
     /// </summary>
     public class MapSubEditorWindow : EditorWindow
     {
-        Vector2 scrollPosition = new Vector2(0, 0);
+        Vector2 scrollPosition = new Vector2(0, 0); //! スクロール幅
 
         /*ユーザー設定*/
         Color gridColor = Color.white; //! 線の色
@@ -290,45 +292,44 @@ namespace MapEditor
         public void OnGUI()
         {
             #region ### Tabs ###
-            using (new GUILayout.HorizontalScope())
+            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(true));
             {
-                if (GUILayout.Button("Save")) //! 保存
+
+                if (GUILayout.Button("Export", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 出力
                 {
 
                 }
-                if (GUILayout.Button("Clear")) //! クリア
+                if (GUILayout.Button("Clear", EditorStyles.toolbarButton, GUILayout.Width(70))) //! クリア
                 {
 
                 }
-                if(GUILayout.Button("Option")) //! 設定
+                if (GUILayout.Button("Option", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 設定
                 {
 
                 }
-                if (GUILayout.Button("Pallet")) //! パレットの表示
+                if (GUILayout.Button("Pallet", EditorStyles.toolbarButton, GUILayout.Width(70))) //! パレットの表示
                 {
                     pallet = !pallet;
                 }
-                if (GUILayout.Button("Origin")) //! 原点
+                if (GUILayout.Button("Origin", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 原点
                 {
 
                 }
-                if (GUILayout.Button("Paint")) //! ペイント
+                if (GUILayout.Button("Paint", EditorStyles.toolbarButton, GUILayout.Width(70))) //! ペイント
                 {
 
                 }
-                if (GUILayout.Button("Eraser")) //! 消しゴム
+                if (GUILayout.Button("Eraser", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 消しゴム
                 {
 
                 }
-                if (GUILayout.Button("bucket")) //! バケツ
-                {
-
-                }
-                if (GUILayout.Button("Grouping")) //! グループ化
+                if (GUILayout.Button("bucket", EditorStyles.toolbarButton, GUILayout.Width(70))) //! バケツ
                 {
 
                 }
             }
+            EditorGUILayout.EndHorizontal();
+
             GUILayout.Space(1);
             #endregion
 

@@ -179,23 +179,32 @@ namespace MapEditor
                 // 指定されたオブジェクトのパスを取得
                 string path = AssetDatabase.GetAssetOrScenePath(dataDirectory);
 
-                //Pathのディレクトリに含まれている*.prefab形式のデータを取得する
-                string[] objectChild = Directory.GetFiles(path, "*.prefab", searchOption);
-
-                for (int i = 0; i < objectChild.Length; i++)
+                try
                 {
-                    //正規表現を使用して、オブジェクト形式のみ表示
-                    Match match = Regex.Match(objectChild[i], "[ a-zA-Z0-9]*.prefab");
 
-                    //横に並べる
-                    using (new GUILayout.HorizontalScope())
+                    //Pathのディレクトリに含まれている*.prefab形式のデータを取得する
+                    string[] objectChild = Directory.GetFiles(path, "*.prefab", searchOption);
+
+                    for (int i = 0; i < objectChild.Length; i++)
                     {
-                        GUILayout.Label(match.Value, GUILayout.Width(300));
+                        //正規表現を使用して、オブジェクト形式のみ表示
+                        Match match = Regex.Match(objectChild[i], "[ a-zA-Z0-9]*.prefab");
 
-                        //オブジェクトを代入する
-                        partsObjects[i] = EditorGUILayout.ObjectField
-                            (AssetDatabase.LoadAssetAtPath<GameObject>(objectChild[i]), typeof(GameObject), true) as GameObject;
+                        //横に並べる
+                        using (new GUILayout.HorizontalScope())
+                        {
+                            GUILayout.Label(match.Value, GUILayout.Width(300));
+
+                            //オブジェクトを代入する
+                            partsObjects.Add(EditorGUILayout.ObjectField
+                                (AssetDatabase.LoadAssetAtPath<GameObject>(objectChild[i]), typeof(GameObject), true) as GameObject);
+                        }
                     }
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError("This file format is not supported. Enter another piece of data.");
+                    dataDirectory = null;
                 }
             }
             EditorGUILayout.EndScrollView();

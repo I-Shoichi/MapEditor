@@ -16,7 +16,7 @@ namespace MapEditor
         #region ### Globals ###
         /*ユーザーの初期設定*/
         Object dataDirectory; //! 使用するオブジェクトが入っているディレクトリ
-        Object outputEmptyObject; //! 作成したマップデータを保管するオブジェクト
+        GameObject outputEmptyObject; //! 作成したマップデータを保管するオブジェクト
         Vector2 mapSize = new Vector2(10, 10); //! マップサイズを保管
         Vector3 partsSize = new Vector3(1, 1, 1); //!使用するオブジェクトのサイズを予め記述し、サイズの成型を行う
 
@@ -104,6 +104,38 @@ namespace MapEditor
             #endregion
 
             #region ### Output ###
+            //ヘッダー
+            using (new GUILayout.HorizontalScope())
+            {
+                FontSizeChangeLabel("Output", HEADER_FONT_SIZE);
+            }
+            EditorGUILayout.Space();
+
+            //代入用のオブジェクト
+            using (new GUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Empty Object*", GUILayout.Width(150));
+                outputEmptyObject = EditorGUILayout.ObjectField(outputEmptyObject, typeof(GameObject), true) as GameObject;
+
+                //オブジェクトがあるならTrue
+                if (outputEmptyObject)
+                {
+                    //ゲームオブジェクトに子があるなら、空にする
+                    if (outputEmptyObject.transform.childCount != 0)
+                    {
+                        outputEmptyObject = null;
+                    }
+                }
+            }
+            EditorGUILayout.Space();
+
+            GUILayout.Label("※The input object can't have any children if it has them.");
+
+            EditorGUILayout.Space();
+            DrawLine();
+            #endregion
+
+            #region ### Start ###
 
             #endregion
 

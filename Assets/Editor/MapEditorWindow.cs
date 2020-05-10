@@ -203,12 +203,10 @@ namespace MapEditor
                             if (partsObjects.IndexOf(AssetDatabase.LoadAssetAtPath<GameObject>(objectChild[i])) == -1)
                             {
                                 //オブジェクトを代入する
-                                partsObjects.Add(EditorGUILayout.ObjectField
-                                    (AssetDatabase.LoadAssetAtPath<GameObject>(objectChild[i]), typeof(GameObject), true) as GameObject);
+                                partsObjects.Add(AssetDatabase.LoadAssetAtPath<GameObject>(objectChild[i]));
                             }
                         }
                     }
-                    Debug.Log(partsObjects.Count);
                 }
                 catch (System.Exception e)
                 {

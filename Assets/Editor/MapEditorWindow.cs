@@ -205,7 +205,7 @@ namespace MapEditor
                 }
                 catch (System.Exception e)
                 {
-                    Debug.LogError("This file format is not supported. Enter another piece of data.");
+                    Debug.Log("This file format is not supported. Enter another piece of data.");
                     dataDirectory = null;
                 }
             }
@@ -261,6 +261,8 @@ namespace MapEditor
     public class MapSubEditorWindow : EditorWindow
     {
         Vector2 scrollPosition = new Vector2(0, 0); //! スクロール幅
+        GridCell[,] cell; //! セルデータ
+        MouseEvents events = MouseEvents.none; //! マウスデータを初期化
 
         /*ユーザー設定*/
         Color gridColor = Color.white; //! 線の色
@@ -274,10 +276,10 @@ namespace MapEditor
         
         /*Developer Settings*/
         const string WINDOW_NAME = "Editor"; //! タブに表示される名前
-        float gridSize = 50; //! grid線のサイズ
+        float gridSize = 10; //! grid線のサイズ
 
         /// <summary>
-        /// 初期化
+        /// コンストラクタ
         /// </summary>
         /// <param name="empty"></param>
         /// <param name="parts"></param>
@@ -287,6 +289,9 @@ namespace MapEditor
             saveObject = empty;
             partsObject = parts;
             mapSize = map;
+            
+            //セルの二次元配列を準備
+            cell = new GridCell[(int)map.x, (int)map.y];
         }
 
         public void OnGUI()
@@ -327,6 +332,9 @@ namespace MapEditor
                 {
 
                 }
+
+                //グリッドサイズの変更
+                gridSize = EditorGUILayout.Slider(gridSize / 10, 1, 10) * 10;
             }
             EditorGUILayout.EndHorizontal();
 
@@ -355,6 +363,30 @@ namespace MapEditor
             {
             }
             #endregion
+
+            MouseEvent();
+        }
+
+        /// <summary>
+        /// マウスイベント
+        /// </summary>
+        private void MouseEvent()
+        {
+            Event e = Event.current;
+            if(e.type == EventType.MouseDown)
+            {
+                //マウスをクリックした座標入力
+                Vector2 clickPos = Event.current.mousePosition;
+
+                int searchCell_X = (int)(clickPos.x / gridSize);
+
+                int searchCell_Y = (int)(clickPos.y / gridSize);
+
+                //マップ外をクリックされたら、返す
+                if (searchCell_X >= mapSize.x || searchCell_Y >= mapSize.y) return;
+
+                Debug.Log("X:" + searchCell_X + "   Y:" + searchCell_Y);
+            }
         }
 
         /// <summary>
@@ -378,5 +410,62 @@ namespace MapEditor
             Handles.DrawLine(new Vector2(grid.x, 0) * gridSize, new Vector2(grid.x, grid.y) * gridSize);
             Handles.DrawLine(new Vector2(0, grid.y) * gridSize, new Vector2(grid.x, grid.y) * gridSize);
         }
+    }
+
+    /// <summary>
+    /// グリッド毎のデータ
+    /// </summary>
+    struct GridCell
+    {
+        #region ### Global ###
+        public GameObject cellObject; //! セルのオブジェクト
+        public Texture cellTexture; //! セルに描画するテクスチャ
+        #endregion
+
+        #region ### Event ###
+        /// <summary>
+        /// イベント情報を入力して、その情報と同様の処理を行う
+        /// </summary>
+        public void InputEvent(MouseEvents inputEvent)
+        {
+            switch(inputEvent)
+            {
+                case MouseEvents.paint:
+                    CellPaint();
+                    break;
+
+                case MouseEvents.eraser:
+                    CellEraser();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// セルを塗る
+        /// </summary>
+        private void CellPaint()
+        {
+            Debug.Log("Cell Paint!!!");
+        }
+
+        /// <summary>
+        /// セルを初期化
+        /// </summary>
+        private void CellEraser()
+        {
+            Debug.Log("Cell Eraser!!!");
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// マウスで操作するときに使用するイベント
+    /// </summary>
+    enum MouseEvents
+    {
+        none,
+        paint,
+        eraser
     }
 }

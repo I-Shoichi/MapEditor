@@ -75,8 +75,12 @@ namespace MapEditor
             //オブジェクトファイルの読み込み
             using (new GUILayout.HorizontalScope())
             {
+                Object tmp = dataDirectory;
                 GUILayout.Label("Stage Resource File*", GUILayout.Width(150));
                 dataDirectory = EditorGUILayout.ObjectField(dataDirectory, typeof(Object), true);
+
+                //入力されてるデータが変われば、リストの要素をリセットする
+                if(tmp != dataDirectory) partsObjects.Clear();
             }
             EditorGUILayout.Space();
 
@@ -183,7 +187,6 @@ namespace MapEditor
 
                 try
                 {
-
                     //Pathのディレクトリに含まれている*.prefab形式のデータを取得する
                     string[] objectChild = Directory.GetFiles(path, "*.prefab", searchOption);
 
@@ -197,11 +200,15 @@ namespace MapEditor
                         {
                             GUILayout.Label(match.Value, GUILayout.Width(300));
 
-                            //オブジェクトを代入する
-                            partsObjects.Add(EditorGUILayout.ObjectField
-                                (AssetDatabase.LoadAssetAtPath<GameObject>(objectChild[i]), typeof(GameObject), true) as GameObject);
+                            if (partsObjects.IndexOf(AssetDatabase.LoadAssetAtPath<GameObject>(objectChild[i])) == -1)
+                            {
+                                //オブジェクトを代入する
+                                partsObjects.Add(EditorGUILayout.ObjectField
+                                    (AssetDatabase.LoadAssetAtPath<GameObject>(objectChild[i]), typeof(GameObject), true) as GameObject);
+                            }
                         }
                     }
+                    Debug.Log(partsObjects.Count);
                 }
                 catch (System.Exception e)
                 {
@@ -263,11 +270,11 @@ namespace MapEditor
         Vector2 scrollPosition = new Vector2(0, 0); //! スクロール幅
         GridCell[,] cell; //! セルデータ
         MouseEvents events = MouseEvents.none; //! マウスデータを初期化
+        Pallet pallet;
 
         /*ユーザー設定*/
         Color gridColor = Color.white; //! 線の色
         Color backGroundColor = new Vector4(0.0f, 0.6f, 1.0f, 1.0f); //! 背景の色
-        bool pallet = true; //! パレットの表示
         
         /*Init Input Datas*/
         GameObject saveObject;
@@ -276,7 +283,7 @@ namespace MapEditor
         
         /*Developer Settings*/
         const string WINDOW_NAME = "Editor"; //! タブに表示される名前
-        float gridSize = 10; //! grid線のサイズ
+        float gridSize = 30; //! grid線のサイズ
 
         /// <summary>
         /// コンストラクタ
@@ -286,6 +293,7 @@ namespace MapEditor
         /// <param name="map"></param>
         public MapSubEditorWindow(ref GameObject empty, List<GameObject> parts, Vector2 map)
         {
+            Debug.Log(parts.Count);
             saveObject = empty;
             partsObject = parts;
             mapSize = map;
@@ -314,7 +322,7 @@ namespace MapEditor
                 }
                 if (GUILayout.Button("Pallet", EditorStyles.toolbarButton, GUILayout.Width(70))) //! パレットの表示
                 {
-                    pallet = !pallet;
+                    pallet = new Pallet(partsObject);
                 }
                 if (GUILayout.Button("Origin", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 原点
                 {
@@ -413,7 +421,31 @@ namespace MapEditor
     }
 
     /// <summary>
+    /// パレットクラス
+    /// @author Shoichi Ikeda
+    /// </summary>
+    public class Pallet
+    {
+        List<Texture> paint;
+        Rect boxRect = new Rect(0, 0, 64, 64);
+
+        /// <summary>
+        /// パレットに使用するデータ群を読み込む
+        /// </summary>
+        /// <param name="objects"></param>
+        public Pallet(List<GameObject> objects)
+        {
+            foreach(GameObject obj in objects)
+            {
+                paint.Add(obj.GetComponent<Texture>());
+            }
+            Debug.Log(paint.Count);
+        }
+    }
+
+    /// <summary>
     /// グリッド毎のデータ
+    /// @author Shoichi Ikeda
     /// </summary>
     struct GridCell
     {
@@ -461,6 +493,7 @@ namespace MapEditor
 
     /// <summary>
     /// マウスで操作するときに使用するイベント
+    /// @author Shoichi Ikeda
     /// </summary>
     enum MouseEvents
     {

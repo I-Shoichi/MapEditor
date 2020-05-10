@@ -205,7 +205,7 @@ namespace MapEditor
                 }
                 catch (System.Exception e)
                 {
-                    Debug.LogError("This file format is not supported. Enter another piece of data.");
+                    Debug.Log("This file format is not supported. Enter another piece of data.");
                     dataDirectory = null;
                 }
             }
@@ -378,5 +378,63 @@ namespace MapEditor
             Handles.DrawLine(new Vector2(grid.x, 0) * gridSize, new Vector2(grid.x, grid.y) * gridSize);
             Handles.DrawLine(new Vector2(0, grid.y) * gridSize, new Vector2(grid.x, grid.y) * gridSize);
         }
+    }
+
+    /// <summary>
+    /// グリッド毎のデータ
+    /// </summary>
+    struct GridCell
+    {
+        #region ### Global ###
+        public GameObject cellObject; //! セルのオブジェクト
+        public Texture cellTexture; //! セルに描画するテクスチャ
+        public Vector2 gridPos; //! グリッドの座標
+        public float gridSize; //! グリッドのサイズ
+        #endregion
+
+        #region ### Event ###
+        /// <summary>
+        /// イベント情報を入力して、その情報と同様の処理を行う
+        /// </summary>
+        public void InputEvent(MouseEvents inputEvent)
+        {
+            switch(inputEvent)
+            {
+                case MouseEvents.paint:
+                    CellPaint();
+                    break;
+
+                case MouseEvents.eraser:
+                    CellEraser();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// セルを塗る
+        /// </summary>
+        private void CellPaint()
+        {
+            Debug.Log("Cell Paint!!!");
+        }
+
+        /// <summary>
+        /// セルを初期化
+        /// </summary>
+        private void CellEraser()
+        {
+            Debug.Log("Cell Eraser!!!");
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// マウスで操作するときに使用するイベント
+    /// </summary>
+    enum MouseEvents
+    {
+        paint,
+        eraser
     }
 }

@@ -261,6 +261,8 @@ namespace MapEditor
     public class MapSubEditorWindow : EditorWindow
     {
         Vector2 scrollPosition = new Vector2(0, 0); //! スクロール幅
+        GridCell[,] cell; //! セルデータ
+        MouseEvents events = MouseEvents.none; //! マウスデータを初期化
 
         /*ユーザー設定*/
         Color gridColor = Color.white; //! 線の色
@@ -287,6 +289,9 @@ namespace MapEditor
             saveObject = empty;
             partsObject = parts;
             mapSize = map;
+            
+            //セルの二次元配列を準備
+            cell = new GridCell[(int)map.x, (int)map.y];
         }
 
         public void OnGUI()
@@ -355,6 +360,30 @@ namespace MapEditor
             {
             }
             #endregion
+
+            MouseEvent();
+        }
+
+        /// <summary>
+        /// マウスイベント
+        /// </summary>
+        private void MouseEvent()
+        {
+            Event e = Event.current;
+            if(e.type == EventType.MouseDown)
+            {
+                //マウスをクリックした座標入力
+                Vector2 clickPos = Event.current.mousePosition;
+
+                int searchCell_X = (int)(clickPos.x / gridSize);
+
+                int searchCell_Y = (int)(clickPos.y / gridSize);
+
+                //マップ外をクリックされたら、返す
+                if (searchCell_X >= mapSize.x || searchCell_Y >= mapSize.y) return;
+
+                Debug.Log("X:" + searchCell_X + "   Y:" + searchCell_Y);
+            }
         }
 
         /// <summary>
@@ -388,8 +417,6 @@ namespace MapEditor
         #region ### Global ###
         public GameObject cellObject; //! セルのオブジェクト
         public Texture cellTexture; //! セルに描画するテクスチャ
-        public Vector2 gridPos; //! グリッドの座標
-        public float gridSize; //! グリッドのサイズ
         #endregion
 
         #region ### Event ###
@@ -434,6 +461,7 @@ namespace MapEditor
     /// </summary>
     enum MouseEvents
     {
+        none,
         paint,
         eraser
     }

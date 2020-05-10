@@ -276,10 +276,10 @@ namespace MapEditor
         
         /*Developer Settings*/
         const string WINDOW_NAME = "Editor"; //! タブに表示される名前
-        float gridSize = 50; //! grid線のサイズ
+        float gridSize = 10; //! grid線のサイズ
 
         /// <summary>
-        /// 初期化
+        /// コンストラクタ
         /// </summary>
         /// <param name="empty"></param>
         /// <param name="parts"></param>
@@ -332,6 +332,9 @@ namespace MapEditor
                 {
 
                 }
+
+                //グリッドサイズの変更
+                gridSize = EditorGUILayout.Slider(gridSize / 10, 1, 10) * 10;
             }
             EditorGUILayout.EndHorizontal();
 

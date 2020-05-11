@@ -75,8 +75,15 @@ namespace MapEditor
             //オブジェクトファイルの読み込み
             using (new GUILayout.HorizontalScope())
             {
+                Object tmp = null;
+
+                //dataDirectoryがあるなら比較用に保管
+                if(dataDirectory) tmp = dataDirectory;
                 GUILayout.Label("Stage Resource File*", GUILayout.Width(150));
                 dataDirectory = EditorGUILayout.ObjectField(dataDirectory, typeof(Object), true);
+
+                //入力されてるデータが変われば、リストの要素をリセットする
+                if(tmp != dataDirectory) partsObjects.Clear();
             }
             EditorGUILayout.Space();
 
@@ -183,7 +190,6 @@ namespace MapEditor
 
                 try
                 {
-
                     //Pathのディレクトリに含まれている*.prefab形式のデータを取得する
                     string[] objectChild = Directory.GetFiles(path, "*.prefab", searchOption);
 
@@ -197,9 +203,11 @@ namespace MapEditor
                         {
                             GUILayout.Label(match.Value, GUILayout.Width(300));
 
-                            //オブジェクトを代入する
-                            partsObjects.Add(EditorGUILayout.ObjectField
-                                (AssetDatabase.LoadAssetAtPath<GameObject>(objectChild[i]), typeof(GameObject), true) as GameObject);
+                            if (partsObjects.IndexOf(AssetDatabase.LoadAssetAtPath<GameObject>(objectChild[i])) == -1)
+                            {
+                                //オブジェクトを代入する
+                                partsObjects.Add(AssetDatabase.LoadAssetAtPath<GameObject>(objectChild[i]));
+                            }
                         }
                     }
                 }
@@ -263,11 +271,12 @@ namespace MapEditor
         Vector2 scrollPosition = new Vector2(0, 0); //! スクロール幅
         GridCell[,] cell; //! セルデータ
         MouseEvents events = MouseEvents.none; //! マウスデータを初期化
+        Pallet pallet;
+        bool usePallet;
 
         /*ユーザー設定*/
         Color gridColor = Color.white; //! 線の色
         Color backGroundColor = new Vector4(0.0f, 0.6f, 1.0f, 1.0f); //! 背景の色
-        bool pallet = true; //! パレットの表示
         
         /*Init Input Datas*/
         GameObject saveObject;
@@ -276,7 +285,7 @@ namespace MapEditor
         
         /*Developer Settings*/
         const string WINDOW_NAME = "Editor"; //! タブに表示される名前
-        float gridSize = 10; //! grid線のサイズ
+        float gridSize = 30; //! grid線のサイズ
 
         /// <summary>
         /// コンストラクタ
@@ -289,13 +298,49 @@ namespace MapEditor
             saveObject = empty;
             partsObject = parts;
             mapSize = map;
-            
+
             //セルの二次元配列を準備
             cell = new GridCell[(int)map.x, (int)map.y];
+            pallet = new Pallet(partsObject);
         }
 
         public void OnGUI()
         {
+            //GridとPalle
+            using (new GUILayout.HorizontalScope())
+            {
+                #region ### Grid ###
+                //色の変更
+                GUI.color = backGroundColor;
+
+                //横に並べる
+                using (new GUILayout.HorizontalScope())
+                {
+                    using (var scrollView = new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
+                    {
+                        scrollPosition = scrollView.scrollPosition;
+
+                        DrawGrid(mapSize);
+                    }
+                }
+                GUI.color = Color.white;
+                #endregion
+
+                #region ### Pallet ###
+                using (new GUILayout.VerticalScope())
+                {
+                    Debug.Log(usePallet);
+                    if (usePallet)
+                    {
+                        foreach (GameObject obj in pallet.paint)
+                        {
+                            GUILayout.Label(obj.name);
+                        }
+                    }
+                }
+                #endregion
+            }
+
             #region ### Tabs ###
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(true));
             {
@@ -314,7 +359,7 @@ namespace MapEditor
                 }
                 if (GUILayout.Button("Pallet", EditorStyles.toolbarButton, GUILayout.Width(70))) //! パレットの表示
                 {
-                    pallet = !pallet;
+                    usePallet = !usePallet;
                 }
                 if (GUILayout.Button("Origin", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 原点
                 {
@@ -341,29 +386,6 @@ namespace MapEditor
             GUILayout.Space(1);
             #endregion
 
-            #region ### Grid ###
-            //色の変更
-            GUI.color = backGroundColor;
-
-            //横に並べる
-            using (new GUILayout.HorizontalScope())
-            {
-                using (var scrollView = new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
-                {
-                    scrollPosition = scrollView.scrollPosition;
-
-                    DrawGrid(mapSize);
-                }
-            }
-            GUI.color = Color.white;
-            #endregion
-
-            #region ### Pallet ###
-            using (new GUILayout.HorizontalScope())
-            {
-            }
-            #endregion
-
             MouseEvent();
         }
 
@@ -381,7 +403,6 @@ namespace MapEditor
                 int searchCell_X = (int)(clickPos.x / gridSize);
 
                 int searchCell_Y = (int)(clickPos.y / gridSize);
-
                 //マップ外をクリックされたら、返す
                 if (searchCell_X >= mapSize.x || searchCell_Y >= mapSize.y) return;
 
@@ -413,7 +434,28 @@ namespace MapEditor
     }
 
     /// <summary>
+    /// パレットクラス
+    /// @author Shoichi Ikeda
+    /// </summary>
+    public class Pallet
+    {
+        public List<GameObject> paint;
+        Rect boxRect = new Rect(0, 0, 64, 64);
+
+        /// <summary>
+        /// パレットに使用するデータ群を読み込む
+        /// </summary>
+        /// <param name="objects"></param>
+        public Pallet(List<GameObject> objects)
+        {
+            paint = objects;
+            Debug.Log(paint.Count);
+        }
+    }
+
+    /// <summary>
     /// グリッド毎のデータ
+    /// @author Shoichi Ikeda
     /// </summary>
     struct GridCell
     {
@@ -461,6 +503,7 @@ namespace MapEditor
 
     /// <summary>
     /// マウスで操作するときに使用するイベント
+    /// @author Shoichi Ikeda
     /// </summary>
     enum MouseEvents
     {

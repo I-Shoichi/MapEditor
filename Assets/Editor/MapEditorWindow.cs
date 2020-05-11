@@ -271,8 +271,7 @@ namespace MapEditor
         Vector2 scrollPosition = new Vector2(0, 0); //! スクロール幅
         GridCell[,] cell; //! セルデータ
         MouseEvents events = MouseEvents.none; //! マウスデータを初期化
-        Pallet pallet;
-        bool usePallet;
+        Pallet pallet; //! パレットのデータ
 
         /*ユーザー設定*/
         Color gridColor = Color.white; //! 線の色
@@ -302,91 +301,6 @@ namespace MapEditor
             //セルの二次元配列を準備
             cell = new GridCell[(int)map.x, (int)map.y];
             pallet = new Pallet(partsObject);
-        }
-
-        public void OnGUI()
-        {
-            //GridとPalle
-            using (new GUILayout.HorizontalScope())
-            {
-                #region ### Grid ###
-                //色の変更
-                GUI.color = backGroundColor;
-
-                //横に並べる
-                using (new GUILayout.HorizontalScope())
-                {
-                    using (var scrollView = new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
-                    {
-                        scrollPosition = scrollView.scrollPosition;
-
-                        DrawGrid(mapSize);
-                    }
-                }
-                GUI.color = Color.white;
-                #endregion
-
-                #region ### Pallet ###
-                using (new GUILayout.VerticalScope())
-                {
-                    Debug.Log(usePallet);
-                    if (usePallet)
-                    {
-                        foreach (GameObject obj in pallet.paint)
-                        {
-                            GUILayout.Label(obj.name);
-                        }
-                    }
-                }
-                #endregion
-            }
-
-            #region ### Tabs ###
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(true));
-            {
-
-                if (GUILayout.Button("Export", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 出力
-                {
-
-                }
-                if (GUILayout.Button("Clear", EditorStyles.toolbarButton, GUILayout.Width(70))) //! クリア
-                {
-
-                }
-                if (GUILayout.Button("Option", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 設定
-                {
-
-                }
-                if (GUILayout.Button("Pallet", EditorStyles.toolbarButton, GUILayout.Width(70))) //! パレットの表示
-                {
-                    usePallet = !usePallet;
-                }
-                if (GUILayout.Button("Origin", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 原点
-                {
-
-                }
-                if (GUILayout.Button("Paint", EditorStyles.toolbarButton, GUILayout.Width(70))) //! ペイント
-                {
-
-                }
-                if (GUILayout.Button("Eraser", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 消しゴム
-                {
-
-                }
-                if (GUILayout.Button("bucket", EditorStyles.toolbarButton, GUILayout.Width(70))) //! バケツ
-                {
-
-                }
-
-                //グリッドサイズの変更
-                gridSize = EditorGUILayout.Slider(gridSize / 10, 1, 10) * 10;
-            }
-            EditorGUILayout.EndHorizontal();
-
-            GUILayout.Space(1);
-            #endregion
-
-            MouseEvent();
         }
 
         /// <summary>
@@ -431,6 +345,81 @@ namespace MapEditor
             Handles.DrawLine(new Vector2(grid.x, 0) * gridSize, new Vector2(grid.x, grid.y) * gridSize);
             Handles.DrawLine(new Vector2(0, grid.y) * gridSize, new Vector2(grid.x, grid.y) * gridSize);
         }
+
+        public void OnGUI()
+        {
+            //GridとPalletを横に並べて表示する
+            using (new GUILayout.HorizontalScope())
+            {
+                #region ### Grid ###
+                //色の変更
+                GUI.color = backGroundColor;
+
+                //横に並べる
+                using (new GUILayout.HorizontalScope(GUILayout.Width((Screen.width / 4) * 3)))
+                {
+                    using (new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
+                    {
+                        DrawGrid(mapSize);
+                    }
+                }
+                GUI.color = Color.white;
+                #endregion
+
+                #region ### Pallet ###
+                //画面の４分の１から、バーのサイズ(8px)分引いている
+                using (var scrollView = new GUILayout.ScrollViewScope(scrollPosition, GUILayout.Width((Screen.width / 4) - 8)))
+                {
+                    scrollPosition = scrollView.scrollPosition;
+                    pallet.ToggleView();
+                }
+                #endregion
+            }
+
+            #region ### Tabs ###
+            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(true));
+            {
+
+                if (GUILayout.Button("Export", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 出力
+                {
+
+                }
+                if (GUILayout.Button("Clear", EditorStyles.toolbarButton, GUILayout.Width(70))) //! クリア
+                {
+
+                }
+                if (GUILayout.Button("Option", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 設定
+                {
+
+                }
+                if (GUILayout.Button("Origin", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 原点
+                {
+
+                }
+                if (GUILayout.Button("Paint", EditorStyles.toolbarButton, GUILayout.Width(70))) //! ペイント
+                {
+
+                }
+                if (GUILayout.Button("Eraser", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 消しゴム
+                {
+
+                }
+                if (GUILayout.Button("bucket", EditorStyles.toolbarButton, GUILayout.Width(70))) //! バケツ
+                {
+
+                }
+
+                //グリッドサイズの変更
+                gridSize = EditorGUILayout.Slider(gridSize / 10, 1, 10) * 10;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            GUILayout.Space(1);
+            #endregion
+
+            MouseEvent();
+        }
+
     }
 
     /// <summary>
@@ -439,8 +428,9 @@ namespace MapEditor
     /// </summary>
     public class Pallet
     {
-        public List<GameObject> paint;
-        Rect boxRect = new Rect(0, 0, 64, 64);
+        public List<GameObject> paint; //! 使用するデータ群
+        public GameObject usePaint;  //! 現在使用しているデータ
+        bool[] radioButton; //! ボタン
 
         /// <summary>
         /// パレットに使用するデータ群を読み込む
@@ -449,7 +439,27 @@ namespace MapEditor
         public Pallet(List<GameObject> objects)
         {
             paint = objects;
-            Debug.Log(paint.Count);
+            radioButton = new bool[objects.Count];
+        }
+
+        /// <summary>
+        /// トグルを表示する
+        /// </summary>
+        public void ToggleView()
+        {
+            using (new GUILayout.VerticalScope())
+            {
+                for (int i = 0; i < paint.Count; i++)
+                {
+                    using (new GUILayout.HorizontalScope())
+                    {
+                        radioButton[i] = EditorGUILayout.Toggle(paint[i] == usePaint, GUILayout.Width(10));
+                        //ボタンが押されているなら、使用するオブジェクトとして保管する
+                        if (radioButton[i]) usePaint = paint[i];
+                        GUILayout.Label(paint[i].name);
+                    }
+                }
+            }
         }
     }
 

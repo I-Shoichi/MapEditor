@@ -271,7 +271,7 @@ namespace MapEditor
         Vector2 scrollPosition = new Vector2(0, 0); //! スクロール幅
         GridCell[,] cell; //! セルデータ
         MouseEvents events = MouseEvents.none; //! マウスデータを初期化
-        Pallet pallet;
+        Pallet pallet; //! パレットのデータ
 
         /*ユーザー設定*/
         Color gridColor = Color.white; //! 線の色
@@ -358,10 +358,8 @@ namespace MapEditor
                 //横に並べる
                 using (new GUILayout.HorizontalScope(GUILayout.Width((Screen.width / 4) * 3)))
                 {
-                    using (var scrollView = new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
+                    using (new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
                     {
-                        scrollPosition = scrollView.scrollPosition;
-
                         DrawGrid(mapSize);
                     }
                 }
@@ -369,12 +367,11 @@ namespace MapEditor
                 #endregion
 
                 #region ### Pallet ###
-                using (new GUILayout.VerticalScope(GUILayout.Width(Screen.width / 4)))
+                //画面の４分の１から、バーのサイズ(8px)分引いている
+                using (var scrollView = new GUILayout.ScrollViewScope(scrollPosition, GUILayout.Width((Screen.width / 4) - 8)))
                 {
-                    foreach (GameObject obj in pallet.paint)
-                    {
-                        GUILayout.Label(obj.name);
-                    }
+                    scrollPosition = scrollView.scrollPosition;
+                    pallet.ToggleView();
                 }
                 #endregion
             }
@@ -431,8 +428,9 @@ namespace MapEditor
     /// </summary>
     public class Pallet
     {
-        public List<GameObject> paint;
-        Rect boxRect = new Rect(0, 0, 64, 64);
+        public List<GameObject> paint; //! 使用するデータ群
+        public GameObject usePaint;  //! 現在使用しているデータ
+        bool[] radioButton; //! ボタン
 
         /// <summary>
         /// パレットに使用するデータ群を読み込む
@@ -441,7 +439,27 @@ namespace MapEditor
         public Pallet(List<GameObject> objects)
         {
             paint = objects;
-            Debug.Log(paint.Count);
+            radioButton = new bool[objects.Count];
+        }
+
+        /// <summary>
+        /// トグルを表示する
+        /// </summary>
+        public void ToggleView()
+        {
+            using (new GUILayout.VerticalScope())
+            {
+                for (int i = 0; i < paint.Count; i++)
+                {
+                    using (new GUILayout.HorizontalScope())
+                    {
+                        radioButton[i] = EditorGUILayout.Toggle(paint[i] == usePaint, GUILayout.Width(10));
+                        //ボタンが押されているなら、使用するオブジェクトとして保管する
+                        if (radioButton[i]) usePaint = paint[i];
+                        GUILayout.Label(paint[i].name);
+                    }
+                }
+            }
         }
     }
 

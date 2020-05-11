@@ -75,7 +75,10 @@ namespace MapEditor
             //オブジェクトファイルの読み込み
             using (new GUILayout.HorizontalScope())
             {
-                Object tmp = dataDirectory;
+                Object tmp = null;
+
+                //dataDirectoryがあるなら比較用に保管
+                if(dataDirectory) tmp = dataDirectory;
                 GUILayout.Label("Stage Resource File*", GUILayout.Width(150));
                 dataDirectory = EditorGUILayout.ObjectField(dataDirectory, typeof(Object), true);
 
@@ -291,13 +294,14 @@ namespace MapEditor
         /// <param name="map"></param>
         public MapSubEditorWindow(ref GameObject empty, List<GameObject> parts, Vector2 map)
         {
-            Debug.Log(parts.Count);
             saveObject = empty;
             partsObject = parts;
             mapSize = map;
             
             //セルの二次元配列を準備
             cell = new GridCell[(int)map.x, (int)map.y];
+
+            Debug.Log(partsObject.Count);
         }
 
         public void OnGUI()

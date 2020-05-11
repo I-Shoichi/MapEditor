@@ -272,6 +272,7 @@ namespace MapEditor
         GridCell[,] cell; //! セルデータ
         MouseEvents events = MouseEvents.none; //! マウスデータを初期化
         Pallet pallet;
+        bool usePallet;
 
         /*ユーザー設定*/
         Color gridColor = Color.white; //! 線の色
@@ -297,31 +298,48 @@ namespace MapEditor
             saveObject = empty;
             partsObject = parts;
             mapSize = map;
-            
+
             //セルの二次元配列を準備
             cell = new GridCell[(int)map.x, (int)map.y];
-
-            Debug.Log(partsObject.Count);
+            pallet = new Pallet(partsObject);
         }
 
         public void OnGUI()
         {
-            #region ### Grid ###
-            //色の変更
-            GUI.color = backGroundColor;
-
-            //横に並べる
+            //GridとPalle
             using (new GUILayout.HorizontalScope())
             {
-                using (var scrollView = new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
-                {
-                    scrollPosition = scrollView.scrollPosition;
+                #region ### Grid ###
+                //色の変更
+                GUI.color = backGroundColor;
 
-                    DrawGrid(mapSize);
+                //横に並べる
+                using (new GUILayout.HorizontalScope())
+                {
+                    using (var scrollView = new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
+                    {
+                        scrollPosition = scrollView.scrollPosition;
+
+                        DrawGrid(mapSize);
+                    }
                 }
+                GUI.color = Color.white;
+                #endregion
+
+                #region ### Pallet ###
+                using (new GUILayout.VerticalScope())
+                {
+                    Debug.Log(usePallet);
+                    if (usePallet)
+                    {
+                        foreach (GameObject obj in pallet.paint)
+                        {
+                            GUILayout.Label(obj.name);
+                        }
+                    }
+                }
+                #endregion
             }
-            GUI.color = Color.white;
-            #endregion
 
             #region ### Tabs ###
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(true));
@@ -341,7 +359,7 @@ namespace MapEditor
                 }
                 if (GUILayout.Button("Pallet", EditorStyles.toolbarButton, GUILayout.Width(70))) //! パレットの表示
                 {
-                    pallet = new Pallet(partsObject);
+                    usePallet = !usePallet;
                 }
                 if (GUILayout.Button("Origin", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 原点
                 {
@@ -366,12 +384,6 @@ namespace MapEditor
             EditorGUILayout.EndHorizontal();
 
             GUILayout.Space(1);
-            #endregion
-
-            #region ### Pallet ###
-            using (new GUILayout.HorizontalScope())
-            {
-            }
             #endregion
 
             MouseEvent();
@@ -427,7 +439,7 @@ namespace MapEditor
     /// </summary>
     public class Pallet
     {
-        List<Texture> paint;
+        public List<GameObject> paint;
         Rect boxRect = new Rect(0, 0, 64, 64);
 
         /// <summary>
@@ -436,10 +448,7 @@ namespace MapEditor
         /// <param name="objects"></param>
         public Pallet(List<GameObject> objects)
         {
-            foreach(GameObject obj in objects)
-            {
-                paint.Add(obj.GetComponent<Texture>());
-            }
+            paint = objects;
             Debug.Log(paint.Count);
         }
     }

@@ -306,6 +306,23 @@ namespace MapEditor
 
         public void OnGUI()
         {
+            #region ### Grid ###
+            //色の変更
+            GUI.color = backGroundColor;
+
+            //横に並べる
+            using (new GUILayout.HorizontalScope())
+            {
+                using (var scrollView = new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
+                {
+                    scrollPosition = scrollView.scrollPosition;
+
+                    DrawGrid(mapSize);
+                }
+            }
+            GUI.color = Color.white;
+            #endregion
+
             #region ### Tabs ###
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(true));
             {
@@ -351,23 +368,6 @@ namespace MapEditor
             GUILayout.Space(1);
             #endregion
 
-            #region ### Grid ###
-            //色の変更
-            GUI.color = backGroundColor;
-
-            //横に並べる
-            using (new GUILayout.HorizontalScope())
-            {
-                using (var scrollView = new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
-                {
-                    scrollPosition = scrollView.scrollPosition;
-
-                    DrawGrid(mapSize);
-                }
-            }
-            GUI.color = Color.white;
-            #endregion
-
             #region ### Pallet ###
             using (new GUILayout.HorizontalScope())
             {
@@ -391,7 +391,6 @@ namespace MapEditor
                 int searchCell_X = (int)(clickPos.x / gridSize);
 
                 int searchCell_Y = (int)(clickPos.y / gridSize);
-
                 //マップ外をクリックされたら、返す
                 if (searchCell_X >= mapSize.x || searchCell_Y >= mapSize.y) return;
 

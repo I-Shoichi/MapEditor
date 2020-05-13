@@ -327,6 +327,8 @@ namespace MapEditor
                 //マップ外をクリックされたら、返す
                 if (searchCell_X >= mapSize.x || searchCell_Y >= mapSize.y) return;
 
+                cell[searchCell_X, searchCell_Y].InputEvent(events, pallet.GetColor(pallet.GetPaintValue()));
+
                 Debug.Log("X:" + searchCell_X + "   Y:" + searchCell_Y);
             }
         }
@@ -405,11 +407,11 @@ namespace MapEditor
                 }
                 if (GUILayout.Button("Paint", EditorStyles.toolbarButton, GUILayout.Width(70))) //! ペイント
                 {
-
+                    events = MouseEvents.paint;
                 }
                 if (GUILayout.Button("Eraser", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 消しゴム
                 {
-
+                    events = MouseEvents.eraser;
                 }
                 if (GUILayout.Button("bucket", EditorStyles.toolbarButton, GUILayout.Width(70))) //! バケツ
                 {
@@ -439,6 +441,15 @@ namespace MapEditor
         public GameObject usePaint;  //! 現在使用しているデータ
         bool[] radioButton; //! ボタン
         Color[] colors; //! 描画する色
+
+        /// <summary>
+        /// 使用しているオブジェクトのValueを取得
+        /// </summary>
+        /// <returns></returns>
+        public int GetPaintValue()
+        {
+            return paint.IndexOf(usePaint);
+        }
 
         /// <summary>
         /// 色を取得
@@ -516,15 +527,17 @@ namespace MapEditor
     {
         #region ### Global ###
         public GameObject cellObject; //! セルのオブジェクト
-        public Texture cellTexture; //! セルに描画するテクスチャ
+        public Color cellColor; //! セルの色
         #endregion
 
         #region ### Event ###
         /// <summary>
         /// イベント情報を入力して、その情報と同様の処理を行う
         /// </summary>
-        public void InputEvent(MouseEvents inputEvent)
+        public void InputEvent(MouseEvents inputEvent, Color color)
         {
+            cellColor = color;
+
             switch(inputEvent)
             {
                 case MouseEvents.paint:
@@ -542,7 +555,7 @@ namespace MapEditor
         /// </summary>
         private void CellPaint()
         {
-            Debug.Log("Cell Paint!!!");
+            Debug.Log("Cell Paint!!! : " + cellColor.r);
         }
 
         /// <summary>

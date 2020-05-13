@@ -479,7 +479,8 @@ namespace MapEditor
         {
             for(int i = 0; i < colors.Length; i++)
             {
-                colors[i] = Color.HSVToRGB(Random.RandomRange(0, 1), Random.RandomRange(0, 1), Random.RandomRange(0, 1));
+                //色をランダムで配置
+                colors[i] = Color.HSVToRGB(Random.RandomRange(0, 100) * 0.01f, Random.RandomRange(0, 100) * 0.01f, Random.RandomRange(0, 100) * 0.01f);
             }
         }
 
@@ -497,7 +498,10 @@ namespace MapEditor
                         radioButton[i] = EditorGUILayout.Toggle(paint[i] == usePaint, GUILayout.Width(10));
                         //ボタンが押されているなら、使用するオブジェクトとして保管する
                         if (radioButton[i]) usePaint = paint[i];
-                        GUILayout.Label(paint[i].name);
+                        GUILayout.Label(paint[i].name, GUILayout.Width(150));
+
+                        //色の変更フィールドを配置
+                        colors[i] = EditorGUILayout.ColorField(colors[i], GUILayout.Width(80));
                     }
                 }
             }

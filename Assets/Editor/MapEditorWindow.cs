@@ -596,9 +596,10 @@ namespace MapEditor
         /// </summary>
         private void CellEraser()
         {
+            cellColor = Color.white;
             cellObject = null;
             //色を初期化
-            EditorGUI.DrawRect(new Rect(pos * size, size), Color.white);
+            EditorGUI.DrawRect(new Rect(pos * size, size), cellColor);
         }
 
         #endregion

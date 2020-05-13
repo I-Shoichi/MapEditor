@@ -281,8 +281,8 @@ namespace MapEditor
         Pallet pallet; //! パレットのデータ
 
         /*ユーザー設定*/
-        Color gridColor = Color.white; //! 線の色
-        Color backGroundColor = new Vector4(0.0f, 0.6f, 1.0f, 1.0f); //! 背景の色
+        Color gridColor = Color.gray; //! 線の色
+        Color backGroundColor = Color.white; //! 背景の色
         
         /*Init Input Datas*/
         GameObject saveObject;
@@ -308,6 +308,15 @@ namespace MapEditor
             //セルの二次元配列を準備
             cell = new GridCell[(int)map.x, (int)map.y];
             pallet = new Pallet(partsObject);
+
+            for (int yyy = 0; yyy < mapSize.y; yyy++)
+            {
+                for (int xxx = 0; xxx < mapSize.x; xxx++)
+                {
+                    //セルの初期化
+                    cell[xxx, yyy].InitCell(new Vector2(xxx, yyy), new Vector2(gridSize, gridSize), backGroundColor);
+                }
+            }
         }
 
         /// <summary>
@@ -346,6 +355,8 @@ namespace MapEditor
             {
                 for(int xxx = 0; xxx < grid.x; xxx++)
                 {
+                    cell[xxx, yyy].CellPaint();
+                    cell[xxx, yyy].Resize(gridSize);
                     Handles.DrawLine(new Vector2(xxx, yyy) * gridSize, new Vector2(xxx + 1, yyy) * gridSize);
                     Handles.DrawLine(new Vector2(xxx, yyy) * gridSize, new Vector2(xxx, yyy + 1) * gridSize);
                 }
@@ -528,6 +539,8 @@ namespace MapEditor
         #region ### Global ###
         public GameObject cellObject; //! セルのオブジェクト
         public Color cellColor; //! セルの色
+        Vector2 pos;
+        Vector2 size;
         #endregion
 
         #region ### Event ###
@@ -551,11 +564,33 @@ namespace MapEditor
         }
 
         /// <summary>
+        /// セルの初期化
+        /// </summary>
+        public void InitCell(Vector2 inputPos, Vector2 inputSize, Color inputColor)
+        {
+            pos = inputPos;
+            size = inputSize;
+            cellColor = inputColor;
+        }
+
+        /// <summary>
+        /// サイズの変更
+        /// </summary>
+        /// <param name="reSize"></param>
+        public void Resize(float reSize)
+        {
+            size = new Vector2(reSize, reSize);
+        }
+
+        /// <summary>
         /// セルを塗る
         /// </summary>
-        private void CellPaint()
+        public void CellPaint()
         {
-            Debug.Log("Cell Paint!!! : " + cellColor.r);
+            //色を初期化
+            EditorGUI.DrawRect(new Rect(pos * size, size), Color.white);
+            //色の描画
+            EditorGUI.DrawRect(new Rect(pos * size, size), cellColor);
         }
 
         /// <summary>

@@ -192,9 +192,7 @@ namespace MapEditor
                 // 指定されたオブジェクトのパスを取得
                 string path = AssetDatabase.GetAssetOrScenePath(dataDirectory);
 
-                Debug.Log(path);
-
-                //try
+                try
                 {
                     //Pathのディレクトリに含まれている*.prefab形式のデータを取得する
                     string[] objectChild = Directory.GetFiles(path, "*.prefab", searchOption);
@@ -220,10 +218,10 @@ namespace MapEditor
                         }
                     }
                 }
-                //catch (System.Exception e)
+                catch (System.Exception e)
                 {
-//                    Debug.Log("This file format is not supported. Enter another piece of data.¥n" + e);
-  //                  dataDirectory = null;
+                    Debug.Log("This file format is not supported. Enter another piece of data.¥n" + e);
+                    dataDirectory = null;
                 }
             }
             EditorGUILayout.EndScrollView();
@@ -358,14 +356,14 @@ namespace MapEditor
         public void OnGUI()
         {
             //GridとPalletを横に並べて表示する
-            using (new GUILayout.HorizontalScope())
+            using (new GUILayout.HorizontalScope(GUILayout.Width(Screen.width)))
             {
                 #region ### Grid ###
                 //色の変更
                 GUI.color = backGroundColor;
 
                 //横に並べる
-                using (new GUILayout.HorizontalScope(GUILayout.Width((Screen.width / 4) * 3)))
+                using (new GUILayout.HorizontalScope(GUILayout.Width((Screen.width / 4) * 1.5f)))
                 {
                     using (new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
                     {
@@ -440,6 +438,27 @@ namespace MapEditor
         public List<GameObject> paint; //! 使用するデータ群
         public GameObject usePaint;  //! 現在使用しているデータ
         bool[] radioButton; //! ボタン
+        Color[] colors; //! 描画する色
+
+        /// <summary>
+        /// 色を取得
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public Color GetColor(int value)
+        {
+            return colors[value];
+        }
+
+        /// <summary>
+        /// 色を配置
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="color"></param>
+        public void SetColor(int value, Color color)
+        {
+            colors[value] = color;
+        }
 
         /// <summary>
         /// パレットに使用するデータ群を読み込む
@@ -449,6 +468,19 @@ namespace MapEditor
         {
             paint = objects;
             radioButton = new bool[objects.Count];
+            colors = new Color[objects.Count];
+            SetRandomColor();
+        }
+
+        /// <summary>
+        /// ランダムで色を生成
+        /// </summary>
+        public void SetRandomColor()
+        {
+            for(int i = 0; i < colors.Length; i++)
+            {
+                colors[i] = Color.HSVToRGB(Random.RandomRange(0, 1), Random.RandomRange(0, 1), Random.RandomRange(0, 1));
+            }
         }
 
         /// <summary>

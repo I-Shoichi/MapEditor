@@ -336,7 +336,7 @@ namespace MapEditor
                 //マップ外をクリックされたら、返す
                 if (searchCell_X >= mapSize.x || searchCell_Y >= mapSize.y) return;
 
-                cell[searchCell_X, searchCell_Y].InputEvent(events, pallet.GetColor(pallet.GetPaintValue()));
+                cell[searchCell_X, searchCell_Y].InputEvent(events, pallet.GetColor(pallet.GetPaintValue()), pallet.paint[pallet.GetPaintValue()]);
 
                 Debug.Log("X:" + searchCell_X + "   Y:" + searchCell_Y);
             }
@@ -547,13 +547,13 @@ namespace MapEditor
         /// <summary>
         /// イベント情報を入力して、その情報と同様の処理を行う
         /// </summary>
-        public void InputEvent(MouseEvents inputEvent, Color color)
+        public void InputEvent(MouseEvents inputEvent, Color color, GameObject inputObject)
         {
-            cellColor = color;
-
             switch(inputEvent)
             {
                 case MouseEvents.paint:
+                    cellColor = color;
+                    cellObject = inputObject;
                     CellPaint();
                     break;
 
@@ -587,8 +587,6 @@ namespace MapEditor
         /// </summary>
         public void CellPaint()
         {
-            //色を初期化
-            EditorGUI.DrawRect(new Rect(pos * size, size), Color.white);
             //色の描画
             EditorGUI.DrawRect(new Rect(pos * size, size), cellColor);
         }
@@ -598,7 +596,9 @@ namespace MapEditor
         /// </summary>
         private void CellEraser()
         {
-            Debug.Log("Cell Eraser!!!");
+            cellObject = null;
+            //色を初期化
+            EditorGUI.DrawRect(new Rect(pos * size, size), Color.white);
         }
 
         #endregion

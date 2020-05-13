@@ -23,7 +23,7 @@ namespace MapEditor
         Vector2 mapSize = new Vector2(10, 10); //! マップサイズを保管
         Vector3 partsSize = new Vector3(1, 1, 1); //!使用するオブジェクトのサイズを予め記述し、サイズの成型を行う
         SearchOption searchOption;  //! ファイルの検索範囲
-        List<GameObject> partsObjects; //! 素材となるオブジェクト
+        List<GameObject> partsObjects = new List<GameObject>(); //! 素材となるオブジェクト
 
         /*Developer Settings*/
         const string WINDOW_NAME = "Map Editor"; //! タブに表示される名前
@@ -192,7 +192,9 @@ namespace MapEditor
                 // 指定されたオブジェクトのパスを取得
                 string path = AssetDatabase.GetAssetOrScenePath(dataDirectory);
 
-                try
+                Debug.Log(path);
+
+                //try
                 {
                     //Pathのディレクトリに含まれている*.prefab形式のデータを取得する
                     string[] objectChild = Directory.GetFiles(path, "*.prefab", searchOption);
@@ -207,6 +209,9 @@ namespace MapEditor
                         {
                             GUILayout.Label(match.Value, GUILayout.Width(300));
 
+                            //partsObjectsがnullかを判定
+                            if (partsObjects == null) return;
+
                             if (partsObjects.IndexOf(AssetDatabase.LoadAssetAtPath<GameObject>(objectChild[i])) == -1)
                             {
                                 //オブジェクトを代入する
@@ -215,10 +220,10 @@ namespace MapEditor
                         }
                     }
                 }
-                catch (System.Exception e)
+                //catch (System.Exception e)
                 {
-                    Debug.Log("This file format is not supported. Enter another piece of data.¥n" + e);
-                    dataDirectory = null;
+//                    Debug.Log("This file format is not supported. Enter another piece of data.¥n" + e);
+  //                  dataDirectory = null;
                 }
             }
             EditorGUILayout.EndScrollView();

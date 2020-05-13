@@ -492,6 +492,8 @@ namespace MapEditor
             radioButton = new bool[objects.Count];
             colors = new Color[objects.Count];
             SetRandomColor();
+            radioButton[0] = true;
+            usePaint = paint[0];
         }
 
         /// <summary>

@@ -82,8 +82,12 @@ namespace MapEditor
                 GUILayout.Label("Stage Resource File*", GUILayout.Width(150));
                 dataDirectory = EditorGUILayout.ObjectField(dataDirectory, typeof(Object), true);
 
-                //入力されてるデータが変われば、リストの要素をリセットする
-                if(tmp != dataDirectory) partsObjects.Clear();
+                //tmpがからではなければ、置換処理
+                if (tmp)
+                {
+                    //入力されてるデータが変われば、リストの要素をリセットする
+                    if (!tmp.Equals(dataDirectory)) partsObjects.Clear();
+                }
             }
             EditorGUILayout.Space();
 
@@ -213,7 +217,7 @@ namespace MapEditor
                 }
                 catch (System.Exception e)
                 {
-                    Debug.Log("This file format is not supported. Enter another piece of data.");
+                    Debug.Log("This file format is not supported. Enter another piece of data.¥n" + e);
                     dataDirectory = null;
                 }
             }

@@ -192,9 +192,7 @@ namespace MapEditor
                 // 指定されたオブジェクトのパスを取得
                 string path = AssetDatabase.GetAssetOrScenePath(dataDirectory);
 
-                Debug.Log(path);
-
-                //try
+                try
                 {
                     //Pathのディレクトリに含まれている*.prefab形式のデータを取得する
                     string[] objectChild = Directory.GetFiles(path, "*.prefab", searchOption);
@@ -220,10 +218,10 @@ namespace MapEditor
                         }
                     }
                 }
-                //catch (System.Exception e)
+                catch (System.Exception e)
                 {
-//                    Debug.Log("This file format is not supported. Enter another piece of data.¥n" + e);
-  //                  dataDirectory = null;
+                    Debug.Log("This file format is not supported. Enter another piece of data.¥n" + e);
+                    dataDirectory = null;
                 }
             }
             EditorGUILayout.EndScrollView();
@@ -283,8 +281,8 @@ namespace MapEditor
         Pallet pallet; //! パレットのデータ
 
         /*ユーザー設定*/
-        Color gridColor = Color.white; //! 線の色
-        Color backGroundColor = new Vector4(0.0f, 0.6f, 1.0f, 1.0f); //! 背景の色
+        Color gridColor = Color.gray; //! 線の色
+        Color backGroundColor = Color.white; //! 背景の色
         
         /*Init Input Datas*/
         GameObject saveObject;
@@ -310,6 +308,15 @@ namespace MapEditor
             //セルの二次元配列を準備
             cell = new GridCell[(int)map.x, (int)map.y];
             pallet = new Pallet(partsObject);
+
+            for (int yyy = 0; yyy < mapSize.y; yyy++)
+            {
+                for (int xxx = 0; xxx < mapSize.x; xxx++)
+                {
+                    //セルの初期化
+                    cell[xxx, yyy].InitCell(new Vector2(xxx, yyy), new Vector2(gridSize, gridSize), backGroundColor);
+                }
+            }
         }
 
         /// <summary>
@@ -329,6 +336,8 @@ namespace MapEditor
                 //マップ外をクリックされたら、返す
                 if (searchCell_X >= mapSize.x || searchCell_Y >= mapSize.y) return;
 
+                cell[searchCell_X, searchCell_Y].InputEvent(events, pallet.GetColor(pallet.GetPaintValue()));
+
                 Debug.Log("X:" + searchCell_X + "   Y:" + searchCell_Y);
             }
         }
@@ -346,6 +355,8 @@ namespace MapEditor
             {
                 for(int xxx = 0; xxx < grid.x; xxx++)
                 {
+                    cell[xxx, yyy].CellPaint();
+                    cell[xxx, yyy].Resize(gridSize);
                     Handles.DrawLine(new Vector2(xxx, yyy) * gridSize, new Vector2(xxx + 1, yyy) * gridSize);
                     Handles.DrawLine(new Vector2(xxx, yyy) * gridSize, new Vector2(xxx, yyy + 1) * gridSize);
                 }
@@ -358,14 +369,14 @@ namespace MapEditor
         public void OnGUI()
         {
             //GridとPalletを横に並べて表示する
-            using (new GUILayout.HorizontalScope())
+            using (new GUILayout.HorizontalScope(GUILayout.Width(Screen.width)))
             {
                 #region ### Grid ###
                 //色の変更
                 GUI.color = backGroundColor;
 
                 //横に並べる
-                using (new GUILayout.HorizontalScope(GUILayout.Width((Screen.width / 4) * 3)))
+                using (new GUILayout.HorizontalScope(GUILayout.Width((Screen.width / 4) * 1.5f)))
                 {
                     using (new GUILayout.ScrollViewScope(scrollPosition, GUI.skin.box))
                     {
@@ -407,11 +418,11 @@ namespace MapEditor
                 }
                 if (GUILayout.Button("Paint", EditorStyles.toolbarButton, GUILayout.Width(70))) //! ペイント
                 {
-
+                    events = MouseEvents.paint;
                 }
                 if (GUILayout.Button("Eraser", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 消しゴム
                 {
-
+                    events = MouseEvents.eraser;
                 }
                 if (GUILayout.Button("bucket", EditorStyles.toolbarButton, GUILayout.Width(70))) //! バケツ
                 {
@@ -440,6 +451,36 @@ namespace MapEditor
         public List<GameObject> paint; //! 使用するデータ群
         public GameObject usePaint;  //! 現在使用しているデータ
         bool[] radioButton; //! ボタン
+        Color[] colors; //! 描画する色
+
+        /// <summary>
+        /// 使用しているオブジェクトのValueを取得
+        /// </summary>
+        /// <returns></returns>
+        public int GetPaintValue()
+        {
+            return paint.IndexOf(usePaint);
+        }
+
+        /// <summary>
+        /// 色を取得
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public Color GetColor(int value)
+        {
+            return colors[value];
+        }
+
+        /// <summary>
+        /// 色を配置
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="color"></param>
+        public void SetColor(int value, Color color)
+        {
+            colors[value] = color;
+        }
 
         /// <summary>
         /// パレットに使用するデータ群を読み込む
@@ -449,6 +490,20 @@ namespace MapEditor
         {
             paint = objects;
             radioButton = new bool[objects.Count];
+            colors = new Color[objects.Count];
+            SetRandomColor();
+        }
+
+        /// <summary>
+        /// ランダムで色を生成
+        /// </summary>
+        public void SetRandomColor()
+        {
+            for(int i = 0; i < colors.Length; i++)
+            {
+                //色をランダムで配置
+                colors[i] = Color.HSVToRGB(Random.RandomRange(0, 100) * 0.01f, Random.RandomRange(0, 100) * 0.01f, Random.RandomRange(0, 100) * 0.01f);
+            }
         }
 
         /// <summary>
@@ -465,7 +520,10 @@ namespace MapEditor
                         radioButton[i] = EditorGUILayout.Toggle(paint[i] == usePaint, GUILayout.Width(10));
                         //ボタンが押されているなら、使用するオブジェクトとして保管する
                         if (radioButton[i]) usePaint = paint[i];
-                        GUILayout.Label(paint[i].name);
+                        GUILayout.Label(paint[i].name, GUILayout.Width(150));
+
+                        //色の変更フィールドを配置
+                        colors[i] = EditorGUILayout.ColorField(colors[i], GUILayout.Width(80));
                     }
                 }
             }
@@ -480,15 +538,19 @@ namespace MapEditor
     {
         #region ### Global ###
         public GameObject cellObject; //! セルのオブジェクト
-        public Texture cellTexture; //! セルに描画するテクスチャ
+        public Color cellColor; //! セルの色
+        Vector2 pos;
+        Vector2 size;
         #endregion
 
         #region ### Event ###
         /// <summary>
         /// イベント情報を入力して、その情報と同様の処理を行う
         /// </summary>
-        public void InputEvent(MouseEvents inputEvent)
+        public void InputEvent(MouseEvents inputEvent, Color color)
         {
+            cellColor = color;
+
             switch(inputEvent)
             {
                 case MouseEvents.paint:
@@ -502,11 +564,33 @@ namespace MapEditor
         }
 
         /// <summary>
+        /// セルの初期化
+        /// </summary>
+        public void InitCell(Vector2 inputPos, Vector2 inputSize, Color inputColor)
+        {
+            pos = inputPos;
+            size = inputSize;
+            cellColor = inputColor;
+        }
+
+        /// <summary>
+        /// サイズの変更
+        /// </summary>
+        /// <param name="reSize"></param>
+        public void Resize(float reSize)
+        {
+            size = new Vector2(reSize, reSize);
+        }
+
+        /// <summary>
         /// セルを塗る
         /// </summary>
-        private void CellPaint()
+        public void CellPaint()
         {
-            Debug.Log("Cell Paint!!!");
+            //色を初期化
+            EditorGUI.DrawRect(new Rect(pos * size, size), Color.white);
+            //色の描画
+            EditorGUI.DrawRect(new Rect(pos * size, size), cellColor);
         }
 
         /// <summary>

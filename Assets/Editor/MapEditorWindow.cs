@@ -162,7 +162,7 @@ namespace MapEditor
                 //Sub Windowがなければ生成する
                 if (subWindow == null)
                 {
-                    subWindow = new MapSubEditorWindow(ref outputEmptyObject, partsObjects, mapSize);
+                    subWindow = new MapSubEditorWindow(outputEmptyObject, partsObjects, mapSize);
                 }
 
                 //必要なデータがなければ、Windowを起動しない
@@ -299,7 +299,7 @@ namespace MapEditor
         /// <param name="empty"></param>
         /// <param name="parts"></param>
         /// <param name="map"></param>
-        public MapSubEditorWindow(ref GameObject empty, List<GameObject> parts, Vector2 map)
+        public MapSubEditorWindow(GameObject empty, List<GameObject> parts, Vector2 map)
         {
             saveObject = empty;
             partsObject = parts;
@@ -366,6 +366,34 @@ namespace MapEditor
             Handles.DrawLine(new Vector2(0, grid.y) * gridSize, new Vector2(grid.x, grid.y) * gridSize);
         }
 
+        /// <summary>
+        /// 出力する
+        /// </summary>
+        private void Export()
+        {
+            //Export用のオブジェクトを生成
+            GameObject save = Instantiate(saveObject, saveObject.transform.position, saveObject.transform.rotation);
+
+            for (int yyy = 0; yyy < mapSize.y; yyy++)
+            {
+                for (int xxx = 0; xxx < mapSize.x; xxx++)
+                {
+                    //オブジェクトデータがあるなら、配置
+                    if (cell[xxx, yyy].cellObject)
+                    {
+                        Vector3 cellPos = cell[xxx, yyy].cellObject.transform.position;
+                        GameObject obj = Instantiate(cell[xxx, yyy].cellObject,
+                            cellPos + new Vector3(
+                                cell[xxx, yyy].cellObject.transform.localScale.x * xxx, 0, -cell[xxx, yyy].cellObject.transform.localScale.z * yyy) //座標
+                                , cell[xxx, yyy].cellObject.transform.rotation); //回転
+                        obj.transform.parent = save.transform;
+                    }
+                }
+            }
+
+            Debug.Log("Finish Exporting!");
+        }
+
         public void OnGUI()
         {
             //GridとPalletを横に並べて表示する
@@ -402,19 +430,7 @@ namespace MapEditor
 
                 if (GUILayout.Button("Export", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 出力
                 {
-
-                }
-                if (GUILayout.Button("Clear", EditorStyles.toolbarButton, GUILayout.Width(70))) //! クリア
-                {
-
-                }
-                if (GUILayout.Button("Option", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 設定
-                {
-
-                }
-                if (GUILayout.Button("Origin", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 原点
-                {
-
+                    Export();
                 }
                 if (GUILayout.Button("Paint", EditorStyles.toolbarButton, GUILayout.Width(70))) //! ペイント
                 {
@@ -423,10 +439,6 @@ namespace MapEditor
                 if (GUILayout.Button("Eraser", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 消しゴム
                 {
                     events = MouseEvents.eraser;
-                }
-                if (GUILayout.Button("bucket", EditorStyles.toolbarButton, GUILayout.Width(70))) //! バケツ
-                {
-
                 }
 
                 //グリッドサイズの変更

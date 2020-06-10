@@ -11,8 +11,6 @@ namespace MapEditor
         Vector2 gridScrollPosition = new Vector2(0, 0);  //! グリッドスクロール
         Vector2 palletScrollPosition = new Vector2(0, 0);//! パレットスクロール
 
-        Pallet pallet;                                   //! パレット
-
         Event mouseEvent;                                //! マウスのイベント
         MouseEvents selectEvent = MouseEvents.none;      //! 選択されているイベント
 
@@ -26,6 +24,8 @@ namespace MapEditor
         float gridSize = 30;                             //! グリッドのサイズ
         Vector2 mapSize;                                 //! マップのサイズ
 
+        Pallet pallet;                                   //! パレット
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -36,6 +36,8 @@ namespace MapEditor
         {
             saveObject = emptyObject;
             partsObjects = stageParts;
+
+            pallet = new Pallet(partsObjects);
 
             ReMapSize(mapSize);
         }
@@ -72,6 +74,13 @@ namespace MapEditor
         private void MouseEvent()
         {
             mouseEvent = Event.current;
+
+            switch (mouseEvent.type)
+            {
+                case EventType.MouseDown:
+                    MouseDown();
+                    break;
+            }
         }
 
         /// <summary>
@@ -79,7 +88,7 @@ namespace MapEditor
         /// </summary>
         private void MouseDown()
         {
-            Vector2 clickPos = mouseEvent.mousePosition;
+            Vector2 clickPos = Event.current.mousePosition;
 
             int searchCell_X = (int)(clickPos.x / gridSize);
             int searchCell_Y = (int)(clickPos.y / gridSize);
@@ -195,16 +204,6 @@ namespace MapEditor
             EditorGUILayout.EndHorizontal();
 
             GUILayout.Space(1);
-        }
-
-        private void Update()
-        {
-            switch (mouseEvent.type)
-            {
-                case EventType.MouseDown:
-                    MouseDown();
-                    break;
-            }
         }
 
         private void OnGUI()

@@ -122,10 +122,17 @@ namespace MapEditor
                     //オブジェクトデータがあるなら、配置
                     if (cell[xxx, yyy].cellObject)
                     {
-                        Vector3 cellPos = cell[xxx, yyy].cellObject.transform.position;
+                        Vector3 cellPos = new Vector3
+                            (cell[xxx, yyy].cellObject.transform.localScale.x * xxx,
+                             cell[xxx, yyy].cellObject.transform.localScale.y,
+                             cell[xxx, yyy].cellObject.transform.localScale.z * yyy);
+
+
                         GameObject obj = Instantiate(cell[xxx, yyy].cellObject,
                                                      cellPos,
                                                      cell[xxx, yyy].cellObject.transform.rotation);
+
+
                         obj.transform.parent = saveObject.transform;
                     }
                 }
@@ -200,10 +207,7 @@ namespace MapEditor
             mouseEvent = Event.current;
 
             clickPos = Event.current.mousePosition;
-        }
 
-        private void Update()
-        {
             switch (mouseEvent.type)
             {
                 case EventType.MouseDown:
@@ -211,6 +215,7 @@ namespace MapEditor
                     break;
             }
         }
+
 
         private void OnGUI()
         {

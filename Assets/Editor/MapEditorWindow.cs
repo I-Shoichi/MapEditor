@@ -14,7 +14,7 @@ namespace MapEditor
     public class MapEditorWindow : EditorWindow
     {
         Vector2 scrollPosition = new Vector2(0, 0);                 //! どこまでスクロールしたかを取得するポジション
-
+        MapCanvas canvas;
         /*= ユーザーの初期設定 =============================================*/
         Object dataDirectory;                                       //! 使用するオブジェクトが入っているディレクトリ
         GameObject outputEmptyObject;                               //! 作成したマップデータを保管するオブジェクト
@@ -182,11 +182,11 @@ namespace MapEditor
         private void OpenEditor()
         {
             if (GUILayout.Button("Open Editor"))
-            {/*
+            {
                 //Sub Windowがなければ生成する
-                if (subWindow == null)
+                if (canvas == null)
                 {
-                    subWindow = new MapSubEditorWindow(outputEmptyObject, partsObjects, mapSize);
+                    canvas = new MapCanvas(outputEmptyObject, partsObjects, mapSize);
                 }
 
                 //必要なデータがなければ、Windowを起動しない
@@ -197,9 +197,9 @@ namespace MapEditor
                 }
 
                 //Windowの表示
-                subWindow.Show();
+                canvas.Show();
                 //ウィンドウを手前に表示
-                subWindow.Focus();*/
+                canvas.Focus();
             }
             EditorGUILayout.Space();
         }

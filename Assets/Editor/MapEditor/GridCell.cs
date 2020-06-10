@@ -62,6 +62,16 @@ namespace MapEditor
         {
             //色の描画
             EditorGUI.DrawRect(new Rect(pos * mapSize, mapSize), cellColor);
+            GUI.Label(new Rect(pos * mapSize, mapSize), parentNumber.ToString());
+        }
+
+        /// <summary>
+        /// 親の数値を変更する
+        /// </summary>
+        /// <param name="num"></param>
+        public void SetParentNumber(int num)
+        {
+            parentNumber = num;
         }
 
         /// <summary>
@@ -85,6 +95,6 @@ namespace MapEditor
     {
         none,
         paint,
-        eraser
+        eraser,
     }
 }

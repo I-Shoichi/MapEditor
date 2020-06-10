@@ -103,12 +103,15 @@ namespace MapEditor
 
                     Handles.DrawLine(new Vector2(xxx, yyy) * gridSize, new Vector2(xxx + 1, yyy) * gridSize);
                     Handles.DrawLine(new Vector2(xxx, yyy) * gridSize, new Vector2(xxx, yyy + 1) * gridSize);
+                    
                 }
 
                 Handles.DrawLine(new Vector2(grid.x, 0) * gridSize, new Vector2(grid.x, grid.y) * gridSize);
                 Handles.DrawLine(new Vector2(0, grid.y) * gridSize, new Vector2(grid.x, grid.y) * gridSize);
             }
         }
+
+
 
         /// <summary>
         /// 出力する
@@ -191,8 +194,10 @@ namespace MapEditor
                     selectEvent = MouseEvents.eraser;
                 }
 
+
                 //グリッドサイズの変更
                 gridSize = EditorGUILayout.Slider(gridSize / 10, 1, 10) * 10;
+                
             }
             EditorGUILayout.EndHorizontal();
 

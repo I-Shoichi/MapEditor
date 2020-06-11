@@ -27,13 +27,16 @@ namespace MapEditor
 
         Pallet pallet;                                   //! パレット
 
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        /// <param name="emptyObject"></param>
-        /// <param name="stageParts"></param>
-        /// <param name="mapSize"></param>
-        public MapCanvas(GameObject emptyObject, List<GameObject> stageParts, Vector2 mapSize)
+		bool paint = false;
+		bool eraser = false;
+
+		/// <summary>
+		/// コンストラクタ
+		/// </summary>
+		/// <param name="emptyObject"></param>
+		/// <param name="stageParts"></param>
+		/// <param name="mapSize"></param>
+		public MapCanvas(GameObject emptyObject, List<GameObject> stageParts, Vector2 mapSize)
         {
             saveObject = emptyObject;
             partsObjects = stageParts;
@@ -155,7 +158,7 @@ namespace MapEditor
                 GUI.color = backGroundColor;
 
                 //横に並べる
-                using (new GUILayout.HorizontalScope(GUILayout.Width((Screen.width / 4) * 1.5f)))
+                using (new GUILayout.HorizontalScope(GUILayout.Width((Screen.width / 4) * 3)))
                 {
                     using (new GUILayout.ScrollViewScope(gridScrollPosition, GUI.skin.box))
                     {
@@ -173,30 +176,41 @@ namespace MapEditor
             }
         }
 
+
         /// <summary>
         /// タブの表示
         /// </summary>
         private void TabBar()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(true));
-            {
+			{
+				//ボタンの準備
+				GUIContent paintToggle = new GUIContent("Paint");
+				GUIContent eraserToggle = new GUIContent("Eraser");
+				
 
-                if (GUILayout.Button("Export", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 出力
+				if (GUILayout.Button("Export", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 出力
                 {
                     Export();
                 }
-                if (GUILayout.Button("Paint", EditorStyles.toolbarButton, GUILayout.Width(70))) //! ペイント
-                {
-                    selectEvent = MouseEvents.paint;
-                }
-                if (GUILayout.Button("Eraser", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 消しゴム
-                {
-                    selectEvent = MouseEvents.eraser;
-                }
+
+				paint = GUILayout.Toggle(paint, paintToggle, EditorStyles.toolbarButton, GUILayout.Width(70));
+				if (paint)
+				{
+					selectEvent = MouseEvents.paint;
+					eraser = false;
+				}
+
+				eraser = GUILayout.Toggle(eraser, eraserToggle, EditorStyles.toolbarButton, GUILayout.Width(70));
+				if (eraser)
+				{
+					selectEvent = MouseEvents.eraser;
+					paint = false;
+				}
 
 
-                //グリッドサイズの変更
-                gridSize = EditorGUILayout.Slider(gridSize / 10, 1, 10) * 10;
+				//グリッドサイズの変更
+				gridSize = EditorGUILayout.Slider((gridSize / 10), 1, 10, GUILayout.Width(300)) * 10;
                 
             }
             EditorGUILayout.EndHorizontal();
@@ -212,17 +226,19 @@ namespace MapEditor
             mouseEvent = Event.current;
 
             clickPos = Event.current.mousePosition;
-
-            switch (mouseEvent.type)
-            {
-                case EventType.MouseDown:
-                    MouseDown();
-                    break;
-            }
         }
 
+		private void Update()
+		{
+			switch (mouseEvent.type)
+			{
+				case EventType.MouseDown:
+					MouseDown();
+					break;
+			}
+		}
 
-        private void OnGUI()
+		private void OnGUI()
         {
             MouseEvent();
 

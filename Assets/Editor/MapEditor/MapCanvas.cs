@@ -31,6 +31,7 @@ namespace MapEditor
 
 		bool paint = false;
 		bool eraser = false;
+        bool bucket = false;
 
 		/// <summary>
 		/// コンストラクタ
@@ -191,38 +192,51 @@ namespace MapEditor
         /// <summary>
         /// タブの表示
         /// </summary>
-        private void TabBar()
+        private void ToolBar()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(true));
             {
                 //ボタンの準備
                 GUIContent paintToggle = new GUIContent("Paint");
                 GUIContent eraserToggle = new GUIContent("Eraser");
+                GUIContent bucketToggle = new GUIContent("Bucket");
 
 
+                //書き出し
                 if (GUILayout.Button("Export", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 出力
                 {
                     Export();
                 }
-                GUISupport.DrawLineVertical();
 
+                //塗り
                 paint = GUILayout.Toggle(paint, paintToggle, EditorStyles.toolbarButton, GUILayout.Width(70));
                 if (paint)
                 {
                     selectEvent = MouseEvents.paint;
                     eraser = false;
+                    bucket = false;
                 }
 
+                //消しゴム
                 eraser = GUILayout.Toggle(eraser, eraserToggle, EditorStyles.toolbarButton, GUILayout.Width(70));
                 if (eraser)
                 {
                     selectEvent = MouseEvents.eraser;
                     paint = false;
+                    bucket = false;
                 }
-                GUISupport.DrawLineVertical();
 
+                //バケツ
+                bucket = GUILayout.Toggle(bucket, bucketToggle, EditorStyles.toolbarButton, GUILayout.Width(70));               
+                if (bucket)
+                {
+                    selectEvent = MouseEvents.bucket;
+                    paint = false;
+                    eraser = false;
                 }
-                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUILayout.EndHorizontal();
+
 
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(true));
             {
@@ -272,7 +286,7 @@ namespace MapEditor
 
             Draw();
 
-            TabBar();
+            ToolBar();
         }
 
         /// <summary>

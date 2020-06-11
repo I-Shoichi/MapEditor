@@ -24,6 +24,7 @@ namespace MapEditor
             switch (inputEvent)
             {
                 case MouseEvents.paint:
+                case MouseEvents.bucket:
                     cellColor = color;
                     cellObject = inputObject;
                     CellPaint();

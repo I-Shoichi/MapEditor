@@ -78,13 +78,20 @@ namespace MapEditor
         /// <summary>
         /// マウスの左を押している場合の処理
         /// </summary>
-        private void MouseDownPaint()
+        private void MouseDownEvent()
         {
             int searchCell_X = (int)(clickPos.x / gridSize);
             int searchCell_Y = (int)(clickPos.y / gridSize);
 
             //マップ外をクリックされたら、返す
             if (searchCell_X >= mapSize.x || searchCell_Y >= mapSize.y) return;
+
+            if (selectEvent == MouseEvents.bucket)
+            {
+                Bucket bucket = new Bucket(cell, cell[searchCell_X, searchCell_Y].cellObject, pallet.paint[pallet.GetPaintValue()], pallet.GetColor(pallet.GetPaintValue()));
+                bucket.Search(searchCell_X, searchCell_Y);
+                return;
+            }
 
             cell[searchCell_X, searchCell_Y].InputEvent(selectEvent, pallet.GetColor(pallet.GetPaintValue()), pallet.paint[pallet.GetPaintValue()]);
         }
@@ -189,6 +196,8 @@ namespace MapEditor
             }
         }
 
+
+
         /// <summary>
         /// タブの表示
         /// </summary>
@@ -275,7 +284,7 @@ namespace MapEditor
 					if (Event.current.shift)	//! シフトキーが押されている
 						MouseDownParent();
 					else
-						MouseDownPaint();
+						MouseDownEvent();
 					break;
 			}
 		}
@@ -311,5 +320,4 @@ namespace MapEditor
             return temp;
         }
     }
-
 }

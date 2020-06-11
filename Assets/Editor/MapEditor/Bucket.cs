@@ -61,11 +61,17 @@ namespace MapEditor
         /// <returns></returns>
         private bool HasObject(int x, int y)
         {
-            if(cells[x, y].cellObject == null)
+            //0以下になったら、処理を中断
+            if (x < 0 || y < 0) return false;
+            if (x >= cells.GetLength(0) || y >= cells.GetLength(1)) return false;
+
+            //塗るオブジェクトがNullの場合
+            if(searchObject == null)
             {
-                return searchObject == null;
+                return cells[x, y].cellObject == null;
             }
 
+            //塗るオブジェクト同士が等しい
             return searchObject.Equals(cells[x, y].cellObject);
         }
     }

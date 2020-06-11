@@ -66,8 +66,8 @@ namespace MapEditor
         {
             for (int i = 0; i < colors.Length; i++)
             {
-                //色をランダムで配置
-                colors[i] = Color.HSVToRGB(Random.RandomRange(0, 100) * 0.01f, Random.RandomRange(0, 100) * 0.01f, Random.RandomRange(0, 100) * 0.01f);
+                //色をランダムで配置/最大144
+                colors[i] = Colouring.ColorSetter.GetColor(i);
             }
         }
 

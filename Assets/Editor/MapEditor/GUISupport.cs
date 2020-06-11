@@ -50,12 +50,16 @@ namespace MapEditor
         /// <summary>
         /// 線を描画する
         /// </summary>
-        public static void DrawLine()
+        public static void DrawLineHoraizontal()
         {
             GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(2));
             EditorGUILayout.Space();
         }
 
+		public static void DrawLineVertical()
+		{
+			GUILayout.Box("", GUILayout.Width(1), GUILayout.ExpandHeight(true));
+		}
     }
 }
 

@@ -22,6 +22,7 @@ namespace MapEditor
         List<GameObject> partsObjects;                   //! パーツの保管
 
         GridCell[,] cell = new GridCell[10, 10];         //! セルデータ
+		int parentNumber = 0;                        //! 入力する親番号
         float gridSize = 30;                             //! グリッドのサイズ
         Vector2 mapSize;                                 //! マップのサイズ
 
@@ -73,12 +74,10 @@ namespace MapEditor
         }
 
         /// <summary>
-        /// マウスを押している場合の処理
+        /// マウスの左を押している場合の処理
         /// </summary>
-        private void MouseDown()
+        private void MouseDownPaint()
         {
-            //Vector2 clickPos = Event.current.mousePosition;
-
             int searchCell_X = (int)(clickPos.x / gridSize);
             int searchCell_Y = (int)(clickPos.y / gridSize);
 
@@ -87,6 +86,20 @@ namespace MapEditor
 
             cell[searchCell_X, searchCell_Y].InputEvent(selectEvent, pallet.GetColor(pallet.GetPaintValue()), pallet.paint[pallet.GetPaintValue()]);
         }
+
+		/// <summary>
+		/// マウスの右を押している場合の処理
+		/// </summary>
+		private void MouseDownParent()
+		{
+			int searchCell_X = (int)(clickPos.x / gridSize);
+			int searchCell_Y = (int)(clickPos.y / gridSize);
+
+			//マップ外をクリックされたら、返す
+			if (searchCell_X >= mapSize.x || searchCell_Y >= mapSize.y) return;
+
+			cell[searchCell_X, searchCell_Y].SetParentNumber(parentNumber);
+		}
 
         /// <summary>
         /// グリッドを描く
@@ -113,8 +126,6 @@ namespace MapEditor
                 Handles.DrawLine(new Vector2(0, grid.y) * gridSize, new Vector2(grid.x, grid.y) * gridSize);
             }
         }
-
-
 
         /// <summary>
         /// 出力する
@@ -176,7 +187,6 @@ namespace MapEditor
             }
         }
 
-
         /// <summary>
         /// タブの表示
         /// </summary>
@@ -193,6 +203,7 @@ namespace MapEditor
                 {
                     Export();
                 }
+				GUISupport.DrawLineVertical();
 
 				paint = GUILayout.Toggle(paint, paintToggle, EditorStyles.toolbarButton, GUILayout.Width(70));
 				if (paint)
@@ -207,12 +218,15 @@ namespace MapEditor
 					selectEvent = MouseEvents.eraser;
 					paint = false;
 				}
-
+				GUISupport.DrawLineVertical();
 
 				//グリッドサイズの変更
 				gridSize = EditorGUILayout.Slider((gridSize / 10), 1, 10, GUILayout.Width(300)) * 10;
-                
-            }
+				GUISupport.DrawLineVertical();
+
+				//親番号
+				parentNumber = (int)EditorGUILayout.Slider(parentNumber, 0, 100, GUILayout.Width(300));
+			}
             EditorGUILayout.EndHorizontal();
 
             GUILayout.Space(1);
@@ -226,14 +240,14 @@ namespace MapEditor
             mouseEvent = Event.current;
 
             clickPos = Event.current.mousePosition;
-        }
 
-		private void Update()
-		{
 			switch (mouseEvent.type)
 			{
 				case EventType.MouseDown:
-					MouseDown();
+					if (Event.current.shift)	//! シフトキーが押されている
+						MouseDownParent();
+					else
+						MouseDownPaint();
 					break;
 			}
 		}

@@ -141,6 +141,11 @@ namespace MapEditor
         /// </summary>
         private void Export()
         {
+            //親番号を入れる
+            IDictionary<int, GameObject> parent = new Dictionary<int, GameObject>();
+            //空のオブジェクトを保管
+            GameObject empty = Instantiate(saveObject, new Vector3(0, 0, 0), Quaternion.identity);
+
             for (int yyy = 0; yyy < mapSize.y; yyy++)
             {
                 for (int xxx = 0; xxx < mapSize.x; xxx++)
@@ -148,18 +153,53 @@ namespace MapEditor
                     //オブジェクトデータがあるなら、配置
                     if (cell[xxx, yyy].cellObject)
                     {
-                        Vector3 cellPos = new Vector3
-                            (cell[xxx, yyy].cellObject.transform.localScale.x * xxx,
-                             cell[xxx, yyy].cellObject.transform.localScale.y,
-                             cell[xxx, yyy].cellObject.transform.localScale.z * yyy);
+                        //親番号割り振りなし
+                        if (cell[xxx, yyy].parentNumber == 0)
+                        {
+                            Vector3 cellPos = new Vector3
+                                (cell[xxx, yyy].cellObject.transform.localScale.x * xxx,
+                                 cell[xxx, yyy].cellObject.transform.localScale.y,
+                                 cell[xxx, yyy].cellObject.transform.localScale.z * yyy);
 
 
-                        GameObject obj = Instantiate(cell[xxx, yyy].cellObject,
-                                                     cellPos,
-                                                     cell[xxx, yyy].cellObject.transform.rotation);
+                            GameObject obj = Instantiate(cell[xxx, yyy].cellObject,
+                                                         cellPos,
+                                                         cell[xxx, yyy].cellObject.transform.rotation);
 
 
-                        obj.transform.parent = saveObject.transform;
+                            obj.transform.parent = saveObject.transform;
+                            continue;
+                        }
+
+                        //辞書に登録されてない
+                        if(parent.Keys.Contains(cell[xxx, yyy].parentNumber) == false)
+                        {
+                            GameObject obj = Instantiate(empty, new Vector3(0, 0, 0), Quaternion.identity);
+
+                            obj.transform.parent = saveObject.transform;
+
+                            parent.Add(cell[xxx, yyy].parentNumber, obj);
+                        }
+
+                        //親子化
+                        foreach(int key in parent.Keys)
+                        {
+                            if(key == cell[xxx, yyy].parentNumber)
+                            {
+                                Vector3 cellPos = new Vector3
+                                    (cell[xxx, yyy].cellObject.transform.localScale.x * xxx,
+                                     cell[xxx, yyy].cellObject.transform.localScale.y,
+                                     cell[xxx, yyy].cellObject.transform.localScale.z * yyy);
+
+                                GameObject obj = Instantiate(cell[xxx, yyy].cellObject,
+                                                             cellPos,
+                                                             cell[xxx, yyy].cellObject.transform.rotation);
+
+                                obj.transform.parent = parent[key].transform;
+                                continue;
+                            }
+                        }
+
                     }
                 }
             }
@@ -195,8 +235,6 @@ namespace MapEditor
                 }
             }
         }
-
-
 
         /// <summary>
         /// タブの表示

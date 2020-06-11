@@ -23,6 +23,7 @@ namespace MapEditor
 
         GridCell[,] cell = new GridCell[10, 10];         //! セルデータ
 		int parentNumber = 0;                        //! 入力する親番号
+        float canvasSize = 1.5f;
         float gridSize = 30;                             //! グリッドのサイズ
         Vector2 mapSize;                                 //! マップのサイズ
 
@@ -30,6 +31,7 @@ namespace MapEditor
 
 		bool paint = false;
 		bool eraser = false;
+        bool bucket = false;
 
 		/// <summary>
 		/// コンストラクタ
@@ -169,7 +171,7 @@ namespace MapEditor
                 GUI.color = backGroundColor;
 
                 //横に並べる
-                using (new GUILayout.HorizontalScope(GUILayout.Width((Screen.width / 4) * 3)))
+                using (new GUILayout.HorizontalScope(GUILayout.Width((Screen.width / 4) * canvasSize)))
                 {
                     using (new GUILayout.ScrollViewScope(gridScrollPosition, GUI.skin.box))
                     {
@@ -190,42 +192,68 @@ namespace MapEditor
         /// <summary>
         /// タブの表示
         /// </summary>
-        private void TabBar()
+        private void ToolBar()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(true));
-			{
-				//ボタンの準備
-				GUIContent paintToggle = new GUIContent("Paint");
-				GUIContent eraserToggle = new GUIContent("Eraser");
-				
+            {
+                //ボタンの準備
+                GUIContent paintToggle = new GUIContent("Paint");
+                GUIContent eraserToggle = new GUIContent("Eraser");
+                GUIContent bucketToggle = new GUIContent("Bucket");
 
-				if (GUILayout.Button("Export", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 出力
+
+                //書き出し
+                if (GUILayout.Button("Export", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 出力
                 {
                     Export();
                 }
-				GUISupport.DrawLineVertical();
 
-				paint = GUILayout.Toggle(paint, paintToggle, EditorStyles.toolbarButton, GUILayout.Width(70));
-				if (paint)
-				{
-					selectEvent = MouseEvents.paint;
-					eraser = false;
-				}
+                //塗り
+                paint = GUILayout.Toggle(paint, paintToggle, EditorStyles.toolbarButton, GUILayout.Width(70));
+                if (paint)
+                {
+                    selectEvent = MouseEvents.paint;
+                    eraser = false;
+                    bucket = false;
+                }
 
-				eraser = GUILayout.Toggle(eraser, eraserToggle, EditorStyles.toolbarButton, GUILayout.Width(70));
-				if (eraser)
-				{
-					selectEvent = MouseEvents.eraser;
-					paint = false;
-				}
-				GUISupport.DrawLineVertical();
+                //消しゴム
+                eraser = GUILayout.Toggle(eraser, eraserToggle, EditorStyles.toolbarButton, GUILayout.Width(70));
+                if (eraser)
+                {
+                    selectEvent = MouseEvents.eraser;
+                    paint = false;
+                    bucket = false;
+                }
 
+                //バケツ
+                bucket = GUILayout.Toggle(bucket, bucketToggle, EditorStyles.toolbarButton, GUILayout.Width(70));               
+                if (bucket)
+                {
+                    selectEvent = MouseEvents.bucket;
+                    paint = false;
+                    eraser = false;
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+
+            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(true));
+            {
+                GUILayout.Label("Grid Size");
 				//グリッドサイズの変更
-				gridSize = EditorGUILayout.Slider((gridSize / 10), 1, 10, GUILayout.Width(300)) * 10;
+				gridSize = EditorGUILayout.Slider((gridSize / 10), 1, 10, GUILayout.Width(150)) * 10;
 				GUISupport.DrawLineVertical();
 
-				//親番号
-				parentNumber = (int)EditorGUILayout.Slider(parentNumber, 0, 100, GUILayout.Width(300));
+
+                GUILayout.Label("Parent Number");
+                //親番号
+                parentNumber = (int)EditorGUILayout.Slider(parentNumber, 0, 100, GUILayout.Width(150));
+
+        
+                GUILayout.Label("Pallet Size");
+                //パレットのサイズ
+                canvasSize = EditorGUILayout.Slider(canvasSize, 1, 10, GUILayout.Width(150));
 			}
             EditorGUILayout.EndHorizontal();
 
@@ -258,7 +286,7 @@ namespace MapEditor
 
             Draw();
 
-            TabBar();
+            ToolBar();
         }
 
         /// <summary>

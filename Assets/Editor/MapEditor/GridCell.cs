@@ -96,5 +96,6 @@ namespace MapEditor
         none,
         paint,
         eraser,
+        bucket
     }
 }

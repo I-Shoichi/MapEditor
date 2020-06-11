@@ -22,18 +22,22 @@ namespace MapEditor
         List<GameObject> partsObjects;                   //! パーツの保管
 
         GridCell[,] cell = new GridCell[10, 10];         //! セルデータ
+		int parentNumber = 0;                        //! 入力する親番号
         float gridSize = 30;                             //! グリッドのサイズ
         Vector2 mapSize;                                 //! マップのサイズ
 
         Pallet pallet;                                   //! パレット
 
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        /// <param name="emptyObject"></param>
-        /// <param name="stageParts"></param>
-        /// <param name="mapSize"></param>
-        public MapCanvas(GameObject emptyObject, List<GameObject> stageParts, Vector2 mapSize)
+		bool paint = false;
+		bool eraser = false;
+
+		/// <summary>
+		/// コンストラクタ
+		/// </summary>
+		/// <param name="emptyObject"></param>
+		/// <param name="stageParts"></param>
+		/// <param name="mapSize"></param>
+		public MapCanvas(GameObject emptyObject, List<GameObject> stageParts, Vector2 mapSize)
         {
             saveObject = emptyObject;
             partsObjects = stageParts;
@@ -70,12 +74,10 @@ namespace MapEditor
         }
 
         /// <summary>
-        /// マウスを押している場合の処理
+        /// マウスの左を押している場合の処理
         /// </summary>
-        private void MouseDown()
+        private void MouseDownPaint()
         {
-            //Vector2 clickPos = Event.current.mousePosition;
-
             int searchCell_X = (int)(clickPos.x / gridSize);
             int searchCell_Y = (int)(clickPos.y / gridSize);
 
@@ -84,6 +86,20 @@ namespace MapEditor
 
             cell[searchCell_X, searchCell_Y].InputEvent(selectEvent, pallet.GetColor(pallet.GetPaintValue()), pallet.paint[pallet.GetPaintValue()]);
         }
+
+		/// <summary>
+		/// マウスの右を押している場合の処理
+		/// </summary>
+		private void MouseDownParent()
+		{
+			int searchCell_X = (int)(clickPos.x / gridSize);
+			int searchCell_Y = (int)(clickPos.y / gridSize);
+
+			//マップ外をクリックされたら、返す
+			if (searchCell_X >= mapSize.x || searchCell_Y >= mapSize.y) return;
+
+			cell[searchCell_X, searchCell_Y].SetParentNumber(parentNumber);
+		}
 
         /// <summary>
         /// グリッドを描く
@@ -110,8 +126,6 @@ namespace MapEditor
                 Handles.DrawLine(new Vector2(0, grid.y) * gridSize, new Vector2(grid.x, grid.y) * gridSize);
             }
         }
-
-
 
         /// <summary>
         /// 出力する
@@ -155,7 +169,7 @@ namespace MapEditor
                 GUI.color = backGroundColor;
 
                 //横に並べる
-                using (new GUILayout.HorizontalScope(GUILayout.Width((Screen.width / 4) * 1.5f)))
+                using (new GUILayout.HorizontalScope(GUILayout.Width((Screen.width / 4) * 3)))
                 {
                     using (new GUILayout.ScrollViewScope(gridScrollPosition, GUI.skin.box))
                     {
@@ -179,26 +193,40 @@ namespace MapEditor
         private void TabBar()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(true));
-            {
+			{
+				//ボタンの準備
+				GUIContent paintToggle = new GUIContent("Paint");
+				GUIContent eraserToggle = new GUIContent("Eraser");
+				
 
-                if (GUILayout.Button("Export", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 出力
+				if (GUILayout.Button("Export", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 出力
                 {
                     Export();
                 }
-                if (GUILayout.Button("Paint", EditorStyles.toolbarButton, GUILayout.Width(70))) //! ペイント
-                {
-                    selectEvent = MouseEvents.paint;
-                }
-                if (GUILayout.Button("Eraser", EditorStyles.toolbarButton, GUILayout.Width(70))) //! 消しゴム
-                {
-                    selectEvent = MouseEvents.eraser;
-                }
+				GUISupport.DrawLineVertical();
 
+				paint = GUILayout.Toggle(paint, paintToggle, EditorStyles.toolbarButton, GUILayout.Width(70));
+				if (paint)
+				{
+					selectEvent = MouseEvents.paint;
+					eraser = false;
+				}
 
-                //グリッドサイズの変更
-                gridSize = EditorGUILayout.Slider(gridSize / 10, 1, 10) * 10;
-                
-            }
+				eraser = GUILayout.Toggle(eraser, eraserToggle, EditorStyles.toolbarButton, GUILayout.Width(70));
+				if (eraser)
+				{
+					selectEvent = MouseEvents.eraser;
+					paint = false;
+				}
+				GUISupport.DrawLineVertical();
+
+				//グリッドサイズの変更
+				gridSize = EditorGUILayout.Slider((gridSize / 10), 1, 10, GUILayout.Width(300)) * 10;
+				GUISupport.DrawLineVertical();
+
+				//親番号
+				parentNumber = (int)EditorGUILayout.Slider(parentNumber, 0, 100, GUILayout.Width(300));
+			}
             EditorGUILayout.EndHorizontal();
 
             GUILayout.Space(1);
@@ -213,16 +241,18 @@ namespace MapEditor
 
             clickPos = Event.current.mousePosition;
 
-            switch (mouseEvent.type)
-            {
-                case EventType.MouseDown:
-                    MouseDown();
-                    break;
-            }
-        }
+			switch (mouseEvent.type)
+			{
+				case EventType.MouseDown:
+					if (Event.current.shift)	//! シフトキーが押されている
+						MouseDownParent();
+					else
+						MouseDownPaint();
+					break;
+			}
+		}
 
-
-        private void OnGUI()
+		private void OnGUI()
         {
             MouseEvent();
 

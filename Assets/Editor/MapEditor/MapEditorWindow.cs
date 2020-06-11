@@ -49,7 +49,7 @@ namespace MapEditor
             EditorGUILayout.Space();
             //タイトル
             Title();
-            GUISupport.DrawLine();
+            GUISupport.DrawLineHoraizontal();
 
             //input
             Header("Input");
@@ -60,7 +60,7 @@ namespace MapEditor
             LoadDirectoryOption();
 
             MapSize();
-            GUISupport.DrawLine();
+            GUISupport.DrawLineHoraizontal();
 
             //OutPot
             Header("Output");
@@ -71,13 +71,13 @@ namespace MapEditor
             EditorGUILayout.HelpBox("The input object can't have any children if it has them.", MessageType.Info);
             EditorGUILayout.Space();
 
-            GUISupport.DrawLine();
+            GUISupport.DrawLineHoraizontal();
 
             //Start
             Header("Start");
             OpenEditor();
 
-            GUISupport.DrawLine();
+            GUISupport.DrawLineHoraizontal();
 
             ViewLoadObjects();
         }

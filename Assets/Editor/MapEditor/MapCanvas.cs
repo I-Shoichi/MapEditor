@@ -12,7 +12,7 @@ namespace MapEditor
         Vector2 clickPos = new Vector2(0, 0);            //! クリックした座標
 
         Event mouseEvent;                                //! マウスのイベント
-        MouseEvents selectEvent = MouseEvents.none;      //! 選択されているイベント
+        MouseEvents selectEvent = MouseEvents.paint;     //! 選択されているイベント
 
         Color gridColor = Color.gray;                    //! 線の色
         Color backGroundColor = Color.white;             //! 背景色
@@ -28,7 +28,7 @@ namespace MapEditor
 
         Pallet pallet;                                   //! パレット
 
-		bool paint = false;
+		bool paint = true;
 		bool eraser = false;
         bool bucket = false;
 
@@ -45,7 +45,7 @@ namespace MapEditor
             saveObject = emptyObject;
             partsObjects = stageParts;
 
-            pallet = new Pallet(partsObjects);
+			pallet = new Pallet(partsObjects);
 
             ReMapSize(mapSize);
         }
@@ -144,8 +144,10 @@ namespace MapEditor
         {
             //親番号を入れる
             IDictionary<int, GameObject> parent = new Dictionary<int, GameObject>();
+            saveObject.transform.position = new Vector3(0, 0, 0);
             //空のオブジェクトを保管
             GameObject empty = Instantiate(saveObject, new Vector3(0, 0, 0), Quaternion.identity);
+            empty.name = "empty object";
 
             for (int yyy = 0; yyy < mapSize.y; yyy++)
             {
@@ -160,7 +162,7 @@ namespace MapEditor
                             Vector3 cellPos = new Vector3
                                 (cell[xxx, yyy].cellObject.transform.localScale.x * xxx,
                                  cell[xxx, yyy].cellObject.transform.localScale.y,
-                                 cell[xxx, yyy].cellObject.transform.localScale.z * yyy);
+                                 cell[xxx, yyy].cellObject.transform.localScale.z * -yyy);
 
 
                             GameObject obj = Instantiate(cell[xxx, yyy].cellObject,
@@ -176,7 +178,6 @@ namespace MapEditor
                         if(parent.Keys.Contains(cell[xxx, yyy].parentNumber) == false)
                         {
                             GameObject obj = Instantiate(empty, new Vector3(0, 0, 0), Quaternion.identity);
-
                             obj.transform.parent = saveObject.transform;
 
                             parent.Add(cell[xxx, yyy].parentNumber, obj);
@@ -200,11 +201,9 @@ namespace MapEditor
                                 continue;
                             }
                         }
-
                     }
                 }
             }
-
             Debug.Log("Finish Exporting!");
         }
 
@@ -229,7 +228,7 @@ namespace MapEditor
                 GUI.color = Color.white;
 
                 //画面の４分の１から、バーのサイズ(8px)分引いている
-                using (var scrollView = new GUILayout.ScrollViewScope(palletScrollPosition, GUILayout.Width((Screen.width / 4) - 8)))
+                using (var scrollView = new GUILayout.ScrollViewScope(palletScrollPosition, GUILayout.Width((Screen.width / 3) - 8)))
                 {
                     palletScrollPosition = scrollView.scrollPosition;
                     pallet.ToggleView();

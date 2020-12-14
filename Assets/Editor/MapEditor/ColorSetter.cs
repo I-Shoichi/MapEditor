@@ -18,13 +18,13 @@ namespace Colouring
             float h, s, v;
 
             h = hueAngle * (value % hMax);
-            h += hueAngle / (value / (hMax * sMax * vMax) + 1) % hueAngle;
+            h += hueAngle / (value / hMax + 1) % hueAngle;
             h = (h % 360) / 360f;
 
-            s = (value / hMax) % sMax;
+            s = (value / sMax) % sMax;
             s /= sMax;
 
-            v = (value / (hMax * sMax)) % vMax;
+            v = (value / vMax) % vMax;
             v /= vMax;
 
             Color col = Color.HSVToRGB(h, 1 - s, 1 - v);

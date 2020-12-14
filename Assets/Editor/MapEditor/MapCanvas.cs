@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEditor;
@@ -32,6 +31,8 @@ namespace MapEditor
 		bool paint = false;
 		bool eraser = false;
         bool bucket = false;
+
+        double callTime = 0;
 
 		/// <summary>
 		/// コンストラクタ
@@ -314,6 +315,8 @@ namespace MapEditor
         {
             mouseEvent = Event.current;
 
+            if(mouseEvent == null) { return; }
+
             clickPos = Event.current.mousePosition;
 
 			switch (mouseEvent.type)
@@ -336,15 +339,20 @@ namespace MapEditor
             ToolBar();
         }
 
-        /// <summary>
-        /// 多次元配列のサイズを変更する
-        /// [参照]
-        /// https://docs.microsoft.com/ja-jp/dotnet/api/system.array.resize?view=netcore-3.1
-        /// </summary>
-        /// <param name="array"></param>
-        /// <param name="newSizes"></param>
-        /// <returns></returns>
-        public Array ArrayReSize(Array array, int[] newSizes)
+		private void OnInspectorUpdate()
+		{
+            Repaint();
+		}
+
+		/// <summary>
+		/// 多次元配列のサイズを変更する
+		/// [参照]
+		/// https://docs.microsoft.com/ja-jp/dotnet/api/system.array.resize?view=netcore-3.1
+		/// </summary>
+		/// <param name="array"></param>
+		/// <param name="newSizes"></param>
+		/// <returns></returns>
+		public Array ArrayReSize(Array array, int[] newSizes)
         {
             //次元同士が一致しなければエラー
             if (newSizes.Length != array.Rank)
